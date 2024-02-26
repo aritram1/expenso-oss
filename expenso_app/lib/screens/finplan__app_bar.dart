@@ -25,13 +25,14 @@ class FinPlanAppBar extends StatelessWidget {
         onPressed: () => leadingIconAction(),
       ),
       actions: [
-        for (var each in availableActions)
-          IconButton(
-            icon: Icon(each.entries.first.key),
-            onPressed: () => each.entries.first.value(),
-          ),
-        ],
-      );
+        for (var action in availableActions)
+          for (var entry in action.entries)
+            IconButton(
+              icon: Icon(entry.key),
+              onPressed: () => entry.value(),
+            ),
+      ],
+    );
   }
   
   // generateActions() {
