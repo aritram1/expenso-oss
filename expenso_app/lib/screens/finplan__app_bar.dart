@@ -5,7 +5,7 @@ class FinPlanAppBar extends StatelessWidget {
 
   const FinPlanAppBar({
     Key? key,
-    this.title = '',
+    required this.title,
     required this.leadingIconAction,
     required this.leadingIcon, 
     required this.availableActions,

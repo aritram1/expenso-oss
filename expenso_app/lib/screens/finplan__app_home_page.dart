@@ -1,7 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:expenso_app/screens/finplan__app_bar.dart';
-import 'package:expenso_app/widgets/finplanTile.dart';
+import 'package:expenso_app/widgets/finplan__Tile.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 
@@ -22,8 +22,6 @@ class _FinPlanAppHomePageState extends State<FinPlanAppHomePage> {
   dynamic Function(String) onLoadComplete = (result) {
     log.d('Table loaded Result from HomeScreen0 => $result');
   };
-
-  // Future<List<Map<String, dynamic>>> data = Future.value([]);
 
   // late double screenWidth;
   // late double screenHeight; 
@@ -76,7 +74,7 @@ class _FinPlanAppHomePageState extends State<FinPlanAppHomePage> {
       appBar: PreferredSize(
         preferredSize: AppBar().preferredSize,
         child: FinPlanAppBar(
-          title: 'Expenso',
+          title: widget.title,
           leadingIcon: Icons.savings,
           leadingIconAction: ({String input = ''}){ 
             return true; 

@@ -21,7 +21,7 @@ class FinPlanTile extends StatefulWidget {
     this.bottomLeft,
     this.bottomMid,
     this.bottomRight,
-    required this.onCallBack
+    required this.onCallBack,
   });
 
   final double padding;
