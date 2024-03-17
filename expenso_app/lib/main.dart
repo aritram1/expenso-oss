@@ -40,7 +40,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const FinPlanSplashPage(title: 'Expenso'), // This title is shown in as header text
+      home: FinPlanSplashPage(),  // title: 'Expenso'), // This title is shown in as header text
       // home: const FinPlanLoginPage(title: 'Expenso'), // This title is shown in as header text
       // home: const FinPlanAppHomePage(title: 'Expenso'), // This title is shown in as header text
     );

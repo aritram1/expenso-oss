@@ -1,56 +1,40 @@
-// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: prefer_const_constructors, use_build_context_synchronously
 
+import 'package:expenso_app/screens/finplan__app_home_page.dart';
 import 'package:expenso_app/util/finplan__salesforce_util2.dart';
 import 'package:flutter/material.dart';
-// import 'package:expenso_app/screens/finplan__app_login.dart';
-// import 'package:expenso_app/widgets/finplan__tile.dart';
+import 'package:logger/logger.dart';
+import 'package:path_provider/path_provider.dart';
 
-class FinPlanSplashPage extends StatefulWidget {
-  const FinPlanSplashPage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
-
-  @override
-  _FinPlanSplashPageState createState() => _FinPlanSplashPageState();
-}
-
-class _FinPlanSplashPageState extends State<FinPlanSplashPage> {
-  late SalesforceAuthService _authService;
-  String? _token;
-
-  @override
-  void initState() {
-    super.initState();
-    _authService = SalesforceAuthService();
-    _getToken();
-  }
-
-  void _getToken() async {
-    final token = await _authService.getTokenFromFile();
-    if (token != null) {
-      setState(() {
-        _token = token;
-      });
-    }
-  }
+class FinPlanSplashPage extends StatelessWidget {
+  final SalesforceAuthService authService = SalesforceAuthService();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: Text('Expenso'),
+      ),
       body: Center(
-        child: ElevatedButton.icon(
+        child: ElevatedButton(
+          child: Text('Login With Salesforce'),
           onPressed: () async {
-            if (_token == null) {
-              final token = await _authService.authenticate(context);
-              setState(() {
-                _token = token;
-              });
+            Logger().d('Token call not started yet!');
+            final token = await authService.authenticate(context);
+            Logger().d('Token is $token');
+            if (token != null) {
+              BuildContext currentContext = context;
+              Navigator.pushReplacement(
+                currentContext, 
+                MaterialPageRoute(
+                  builder: (currentContext)=> FinPlanAppHomePage(title: 'Expenso'),
+                )
+              );
+            } else {
+              // Authentication failed, handle error if needed
+              Logger().d('Error');
             }
-            // Handle navigation after authentication
-          },
-          icon: const Icon(Icons.cloud),
-          label: const Text("Login With Salesforce"),
+          }
         ),
       ),
     );
