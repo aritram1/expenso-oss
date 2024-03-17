@@ -20,7 +20,12 @@ class FinPlanLoginPageState extends State<FinPlanLoginPage>{
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child : ElevatedButton(onPressed: (){}, child: Text('Login With Salesforce'),)
+        child : ElevatedButton(
+          child: Text('Login With Salesforce'),
+          onPressed: (){
+            
+          }
+        )
       ) 
     );
   }

@@ -2,9 +2,28 @@ import 'package:expenso_app/screens/finplan__app_login.dart';
 import 'package:expenso_app/screens/finplan__app_splash_page.dart';
 import 'package:flutter/material.dart';
 import 'package:expenso_app/screens/finplan__app_home_page.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:logger/logger.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 
-void main() {
+void main() async {
+
+  // initialize dot env
+  await dotenv.load(fileName: ".env"); 
+
+  // initialize the db
+  // WidgetsFlutterBinding.ensureInitialized();
+  // final isDbCreated = await DatabaseService.instance.initializeDatabase();
+  // Logger().d('Created > $isDbCreated');
+
+  // If not granted, request for permissions (sms read etc) on app startup
+  PermissionStatus status = await Permission.sms.status;
+  if (status != PermissionStatus.granted) {
+    await Permission.sms.request();
+  }
+
+  // Finally unt the app
   runApp(const MyApp());
 }
 
@@ -27,4 +46,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
