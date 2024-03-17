@@ -1,5 +1,8 @@
+import 'package:expenso_app/screens/finplan__app_login.dart';
+import 'package:expenso_app/screens/finplan__app_splash_page.dart';
 import 'package:flutter/material.dart';
 import 'package:expenso_app/screens/finplan__app_home_page.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -18,7 +21,9 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const FinPlanAppHomePage(title: 'Expenso'), // This title is shown in as header text
+      home: const FinPlanSplashPage(title: 'Expenso'), // This title is shown in as header text
+      // home: const FinPlanLoginPage(title: 'Expenso'), // This title is shown in as header text
+      // home: const FinPlanAppHomePage(title: 'Expenso'), // This title is shown in as header text
     );
   }
 }
