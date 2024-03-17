@@ -7,6 +7,7 @@ import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 
 class FinPlanSplashPage extends StatelessWidget {
+  
   final SalesforceAuthService authService = SalesforceAuthService();
 
   @override
@@ -17,25 +18,25 @@ class FinPlanSplashPage extends StatelessWidget {
       ),
       body: Center(
         child: ElevatedButton(
-          child: Text('Login With Salesforce'),
-          onPressed: () async {
-            Logger().d('Token call not started yet!');
-            final token = await authService.authenticate(context);
-            Logger().d('Token is $token');
-            if (token != null) {
-              BuildContext currentContext = context;
-              Navigator.pushReplacement(
-                currentContext, 
-                MaterialPageRoute(
-                  builder: (currentContext)=> FinPlanAppHomePage(title: 'Expenso'),
-                )
-              );
-            } else {
-              // Authentication failed, handle error if needed
-              Logger().d('Error');
-            }
-          }
-        ),
+            child: Text('Login With Salesforce'),
+            onPressed: () async {
+              Logger().d('Token call not started yet!');
+              final token = await authService.authenticate(context);
+              Logger().d('Token is $token');
+              if (token != null) {
+                BuildContext currentContext = context;
+                Navigator.pushReplacement(
+                  currentContext,
+                  MaterialPageRoute(
+                    builder: (currentContext) =>
+                        FinPlanAppHomePage(title: 'Expenso'),
+                  ),
+                );
+              } else {
+                // Authentication failed, handle error if needed
+                Logger().d('Error');
+              }
+            }),
       ),
     );
   }

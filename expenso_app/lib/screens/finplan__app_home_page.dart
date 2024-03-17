@@ -1,9 +1,13 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, use_build_context_synchronously
+
+import 'dart:convert';
 
 import 'package:expenso_app/screens/finplan__app_bar.dart';
+import 'package:expenso_app/screens/finplan__messages_all.dart';
 import 'package:expenso_app/widgets/finplan__Tile.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
+import 'package:expenso_app/util/finplan__salesforce_util_oauth2.dart';
 
 class FinPlanAppHomePage extends StatefulWidget {
 
@@ -65,7 +69,17 @@ class _FinPlanAppHomePageState extends State<FinPlanAppHomePage> {
     padding = 4;
 
     // data = getDataForLast1Year();
+
+    // testing
+    // getToken();
   }
+
+  // testing
+  // getToken() async{
+  //   String? token = await SalesforceAuthService().getTokenFromFile();
+  //   Logger().d('Token retrieved from hoem page: $token');
+  
+  // }
 
   
   @override
@@ -229,7 +243,7 @@ class _FinPlanAppHomePageState extends State<FinPlanAppHomePage> {
                             ),
                             onCallBack: (){
                               var currentContext = context;
-                              navigateTo(currentContext, null);
+                              navigateTo(currentContext, Scaffold(appBar: AppBar(), body: FinPlanAllMessages()));
                             }
                           )
                         ),
@@ -360,7 +374,16 @@ class _FinPlanAppHomePageState extends State<FinPlanAppHomePage> {
   }
 
   // A generic method to handle routes
-  void navigateTo(BuildContext context, Widget? widget) {
+  void navigateTo(BuildContext context, Widget? widget) async {
+    String contents = await SalesforceAuthService().getFromFile() ?? ''; // 'access_token') ?? 'Hello Hi there, no token yet!';
+    String value = 'pyak pyak';
+    Logger().d('C : $contents');
+    if(contents != ''){
+      final Map<String, dynamic> data = json.decode(contents);
+      value = data['access_token'];
+    }
+    // String value = ((key != null) ? data[key] : json.encode(data)) ?? 'pyak pyak'; // an example key is access_token, for all keys refer below
+    
     Navigator.push(
       context, 
       MaterialPageRoute(
@@ -371,7 +394,7 @@ class _FinPlanAppHomePageState extends State<FinPlanAppHomePage> {
               padding: EdgeInsets.all(8),
               // child: // FinPlanMonthView()
               child: Center(
-                child: const Text("Hello Hi there!"),
+                child: Text(value),
               ),
             )
           )

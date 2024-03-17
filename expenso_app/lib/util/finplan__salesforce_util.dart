@@ -7,6 +7,7 @@ import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:expenso_app/util/finplan__salesforce_util_oauth2.dart';
 
 class SalesforceUtil{
 
@@ -210,27 +211,21 @@ class SalesforceUtil{
     if(detaildebug) log.d('epUrl $epUrl');
     return resp;
   }
-  
+
   // private method - gets called from `login` method
   static Future<Map<String, dynamic>> _login() async{
     Map<String, dynamic> loginResponse = {};
     try{
-      dynamic resp = await http.post(
-        Uri.parse(generateEndpointUrl(opType : 'login')),
-        headers: generateHeader(),
-        // body : not required for login call
-      );
-      if(detaildebug) log.d('I am here');
-      final Map<String, dynamic> body = json.decode(resp.body);
-      if (resp.statusCode == 200) {
-        instanceUrl = body['instance_url'];
-        accessToken = body['access_token'];
-        loginResponse['data'] = body;
-      } 
-      else {
+      String contents = await SalesforceAuthService().getFromFile() ?? ''; // 'access_token') ?? 'Hello Hi there, no token yet!';
+      if(contents != ''){
+        final Map<String, dynamic> data = json.decode(contents);
+        accessToken = data['access_token'];
+        instanceUrl = data['instance_url'];
+      }
+      if(accessToken == '' || instanceUrl == ''){
         // Log an error
         // if(detaildebug) log.d('Response code other than 200 detected : ${resp.body}');
-        loginResponse['error'] = body.toString();
+        loginResponse['error'] = 'Some error occurred!';
       }
       // responseMap.add('data') = response.body;
     }
@@ -240,6 +235,36 @@ class SalesforceUtil{
     }
     return loginResponse;
   }
+  
+  // // private method - gets called from `login` method
+  // static Future<Map<String, dynamic>> _login() async{
+  //   Map<String, dynamic> loginResponse = {};
+  //   try{
+  //     dynamic resp = await http.post(
+  //       Uri.parse(generateEndpointUrl(opType : 'login')),
+  //       headers: generateHeader(),
+  //       // body : not required for login call
+  //     );
+  //     if(detaildebug) log.d('I am here');
+  //     final Map<String, dynamic> body = json.decode(resp.body);
+  //     if (resp.statusCode == 200) {
+  //       instanceUrl = body['instance_url'];
+  //       accessToken = body['access_token'];
+  //       loginResponse['data'] = body;
+  //     } 
+  //     else {
+  //       // Log an error
+  //       // if(detaildebug) log.d('Response code other than 200 detected : ${resp.body}');
+  //       loginResponse['error'] = body.toString();
+  //     }
+  //     // responseMap.add('data') = response.body;
+  //   }
+  //   catch(error){
+  //     if(detaildebug) log.e('Error occurred while logging into Salesforce. Error is : $error');
+  //     loginResponse['error'] = error.toString();
+  //   }
+  //   return loginResponse;
+  // }
 
   // private method  - gets called from `dmlToSalesforce` method
   static Future<Map<String, dynamic>> _dmlToSalesforce(String opType, String objAPIName, List<Map<String, dynamic>> fieldNameValuePairs, {int batchCount = 0}) async{
