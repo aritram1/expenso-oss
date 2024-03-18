@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
+import 'package:expenso_app/util/finplan__exception_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
@@ -9,16 +11,18 @@ import 'package:path_provider/path_provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class SalesforceAuthService {
+
   static String clientId = dotenv.env['clientId'] ?? '';
   static String redirectUri = dotenv.env['redirectUri'] ?? '';
+  static String tokenUrl = dotenv.env['tokenEndpoint'] ?? '';
+  static String authUrl = dotenv.env['authUrlEndpoint'] ?? '';
+  static String revokeUrlEndpoint = dotenv.env['revokeUrlEndpoint'] ?? '';
+  static String tokenFileName = dotenv.env['tokenFileName'] ?? '';
 
-  static const String authUrl = 'https://login.salesforce.com/services/oauth2/authorize';
-  static const String tokenUrl = 'https://login.salesforce.com/services/oauth2/token';
+  static final Completer<String> _completer = Completer<String>();
+  static late final WebViewController webViewController;
 
-  final Completer<String> _completer = Completer<String>();
-  late final WebViewController webViewController;
-
-  Future<String?> authenticate(BuildContext context) async {
+  static Future<String?> authenticate(BuildContext context) async {
     return Navigator.push(
       context,
       MaterialPageRoute(
@@ -53,10 +57,6 @@ class SalesforceAuthService {
                     },
                   );
                   if (tokenResponse.statusCode == 200) {
-                    // final Map<String, dynamic> tokenData = json.decode(tokenResponse.body);
-                    // final token = tokenData['access_token'];
-                    // await _saveTokenToFile(token);
-                    
                     Logger().d('Token is received as: ${tokenResponse.body}');
                     await _saveToFile(tokenResponse.body);
                     _completer.complete(tokenResponse.body);
@@ -75,37 +75,113 @@ class SalesforceAuthService {
     ).then((_) => _completer.future);
   }
 
-  // Future<void> _saveTokenToFile(String token) async {
-  //   final directory = await getApplicationDocumentsDirectory();
-  //   Logger().d('Path: ${directory.path}');
-  //   final file = File('${directory.path}/token.json');
-  //   await file.writeAsString(json.encode({'token': token}));
-  // }
-
-  Future<void> _saveToFile(String responseBody) async {
+  static Future<void> _saveToFile(String responseBody) async {
+    Logger().d('Token is getting saved as $responseBody');
     final directory = await getApplicationDocumentsDirectory();
     Logger().d('Path: ${directory.path}');
-    final file = File('${directory.path}/token.json');
+    Logger().d('Filename is=> ${directory.path}/$tokenFileName');
+    final file = File('${directory.path}/$tokenFileName');
     await file.writeAsString(responseBody);
+    Logger().d('After login file is => ${await getFromFile()}');
   }
 
   // Get a value given key
-  Future<String?> getFromFile() async {
-    Logger().d('value is hi hi=>');
-
+  static Future<String?> getFromFile({ String key = ''}) async {
+    Logger().d('Inside get from file method=>');
     final directory = await getApplicationDocumentsDirectory();
-    final file = File('${directory.path}/token.json');
+    final file = File('${directory.path}/$tokenFileName');
+    String value = '';
     if (await file.exists()) {
       final contents = await file.readAsString();
-      // final Map<String, dynamic> data = json.decode(contents);
-      // String value = ((key != null) ? data[key] : json.encode(data)) ?? 'pyak pyak'; // an example key is access_token, for all keys refer below
-      // Logger().d('value is=> $value');
-      return contents;
+      final Map<String, dynamic> data = json.decode(contents);
+      if(key == ''){
+        value = json.encode(data);
+      }
+      else{
+        value = data[key];
+      }
     }
-    return null;
+    Logger().d('key returned is=> $key');
+    Logger().d('so value returned is=> $value');
+    return value;
   }
+
+
+  static Future<void> logout() async {
+    String? accessToken = await getFromFile(key : 'access_token');
+    Logger().d('access_token in logout is => $accessToken');
+    Logger().d('before logout file is => ${await getFromFile()}');
+    final response = await http.post(
+      Uri.parse(revokeUrlEndpoint),
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: {
+        'token': accessToken,
+      },
+    );
+    await handleResponse(response);
+    
+    Logger().d('after logout file is => ${getFromFile()}');
+  }
+
+  static handleResponse(dynamic response) async{
+    // Handle the normal 200 status code 
+    if (response.statusCode == 200) {
+      await _clearStoredToken();  // Logout successful, ensure to remove the access token from the token file
+    }
+    // If its redirection, status 302, handle redirection
+    else if (response.statusCode == 302) {
+      
+      final String? redirectedUrl = response.headers['location'];
+      Logger().d('redirectedUrl=>${response.headers['location']}');
+      
+      if (redirectedUrl != null) {
+        
+        final redirectedResponse = await http.get(Uri.parse(redirectedUrl));
+        Logger().d('After redirection status code: ${redirectedResponse.statusCode}');
+        
+        await _clearStoredToken();  // Logout successful, ensure to remove the access token from the token file
+      } 
+      else {
+        Logger().e('Error : StatusCode 302 : RedirectionUrl is empty!');
+        throw FinPlanException('Error : StatusCode 302 : RedirectionUrl is empty');
+      }
+    }
+    else {
+      // Failed to logout for some strange thing :-]
+      throw FinPlanException('Failed to logout: ${response.body}, response status code is ${response.statusCode}');
+    }
+  }
+
+  static Future<void> _clearStoredToken() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final file = File('${directory.path}/$tokenFileName');
+
+    if (await file.exists()) {
+      try {
+        final contents = await file.readAsString();
+        final Map<String, dynamic> data = json.decode(contents);
+        if (data.containsKey('access_token')) {
+          data.remove('access_token');
+          await file.writeAsString(json.encode(data));
+          Logger().d('Stored token cleared successfully.');
+        } else {
+          Logger().d('No token found in the file.');
+        }
+      } catch (error) {
+        Logger().e('Failed to clear stored token: $error');
+      }
+    } else {
+      Logger().d('Token file does not exist.');
+    }
+  }
+
+  // Class ends
+
 }
 
+// Example response structure
 // {
 //     "access_token": "00D5i00000CIhxb...",
 //     "refresh_token": "psdfdd....",

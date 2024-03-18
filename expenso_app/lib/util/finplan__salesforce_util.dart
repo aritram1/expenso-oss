@@ -216,7 +216,7 @@ class SalesforceUtil{
   static Future<Map<String, dynamic>> _login() async{
     Map<String, dynamic> loginResponse = {};
     try{
-      String contents = await SalesforceAuthService().getFromFile() ?? ''; // 'access_token') ?? 'Hello Hi there, no token yet!';
+      String contents = await SalesforceAuthService.getFromFile() ?? ''; // 'access_token') ?? 'Hello Hi there, no token yet!';
       if(contents != ''){
         final Map<String, dynamic> data = json.decode(contents);
         accessToken = data['access_token'];

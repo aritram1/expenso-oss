@@ -71,15 +71,15 @@ class _FinPlanAppHomePageState extends State<FinPlanAppHomePage> {
     // data = getDataForLast1Year();
 
     // testing
-    // getToken();
+    getTokenFilecontent();
   }
 
   // testing
-  // getToken() async{
-  //   String? token = await SalesforceAuthService().getTokenFromFile();
-  //   Logger().d('Token retrieved from hoem page: $token');
-  
-  // }
+  getTokenFilecontent() async{
+    Logger().d('Inside getTokenFilecontent methodToken is getting saved as');
+    String? content = await SalesforceAuthService.getFromFile();
+    Logger().d('File content before the Home Page is loaded : $content');
+  }
 
   
   @override
@@ -95,6 +95,10 @@ class _FinPlanAppHomePageState extends State<FinPlanAppHomePage> {
           },
           availableActions: [
             {
+              Icons.logout : ({input = ''}){
+                SalesforceAuthService.logout();
+                return true;
+              },
               Icons.access_alarm : ({input = ''}){
                 return true;
               },
@@ -375,7 +379,7 @@ class _FinPlanAppHomePageState extends State<FinPlanAppHomePage> {
 
   // A generic method to handle routes
   void navigateTo(BuildContext context, Widget? widget) async {
-    String contents = await SalesforceAuthService().getFromFile() ?? ''; // 'access_token') ?? 'Hello Hi there, no token yet!';
+    String contents = await SalesforceAuthService.getFromFile() ?? ''; // 'access_token') ?? 'Hello Hi there, no token yet!';
     String value = 'pyak pyak';
     Logger().d('C : $contents');
     if(contents != ''){
