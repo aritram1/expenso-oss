@@ -14,7 +14,7 @@ class FinPlanAppBar extends StatelessWidget {
   final String title;
   final IconData leadingIcon;
   final bool Function({String input}) leadingIconAction;
-  final List<Map<IconData, bool Function({String input})>> availableActions;
+  final List<Map<IconData, Future<bool> Function({String input})>> availableActions;
 
   @override
   Widget build(BuildContext context) {
