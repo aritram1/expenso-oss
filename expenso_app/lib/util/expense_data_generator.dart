@@ -2,8 +2,10 @@
 // ignore_for_file: constant_identifier_names
 
 import 'package:device_info/device_info.dart';
+import 'package:expenso_app/util/finplan__message_util.dart';
 import 'package:expenso_app/util/finplan__salesforce_util.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_sms_inbox/flutter_sms_inbox.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 
@@ -12,6 +14,7 @@ class ExpenseDataGenerator {
   static Logger log = Logger();
   static bool debug = bool.parse(dotenv.env['debug'] ?? 'false');
   static bool detaildebug = bool.parse(dotenv.env['detaildebug'] ?? 'false');
+  static String customEndpointForDeleteAllMessagesAndTransactions = dotenv.env['customEndpointForDeleteAllMessagesAndTransactions'] ?? '/services/apexrest/FinPlan/api/delete/*';
 
   static const String DATE_FORMAT_IN  = 'yyyy-MM-dd'; // Format to denote yyyy-mm-dd format
   
@@ -232,6 +235,39 @@ class ExpenseDataGenerator {
     }
     if(debug) log.d('Inside generateDataForExpenseScreen2=>$generatedDataForExpenseScreen2');
     return generatedDataForExpenseScreen2;
+  }
+
+
+  static Future<Map<String, dynamic>> syncMessages(String deviceId) async{
+
+    // Call the specific API to delete all messages and transactions
+    String mesageAndTransactionsDeleteMessage = await hardDeleteMessagesAndTransactions(deviceId);
+    if(detaildebug) log.d('mesageAndTransactionsDeleteMessage is -> $mesageAndTransactionsDeleteMessage');
+    
+    // Then retrieve, convert and call the insert API for inserting messages
+    List<SmsMessage> messages = await MessageUtil.getMessages();
+    List<Map<String, dynamic>> processedMessages = await MessageUtil.convert(messages);
+    Map<String, dynamic> createResponse = await SalesforceUtil.dmlToSalesforce(
+        opType: 'insert',
+        objAPIName : 'FinPlan__SMS_Message__c', 
+        fieldNameValuePairs : processedMessages);
+
+    if(detaildebug) log.d('syncMessages response Data => ${createResponse['data'].toString()}');
+    if(detaildebug) log.d('syncMessages response Errors => ${createResponse['errors'].toString()}');
+
+    return createResponse;
+  }
+
+  static Future<String> hardDeleteMessagesAndTransactions(String deviceId) async{
+    
+    // Call the specific API to delete all messages and transactions
+    String mesageAndTransactionsDeleteMessage = await SalesforceUtil.callSalesforceAPI(
+        httpMethod: 'POST', 
+        endpointUrl: customEndpointForDeleteAllMessagesAndTransactions, 
+        body: {'deviceId' : deviceId});
+    if(detaildebug) log.d('mesageAndTransactionsDeleteMessage is -> $mesageAndTransactionsDeleteMessage');
+    
+    return mesageAndTransactionsDeleteMessage;
   }
 
 }

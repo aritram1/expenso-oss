@@ -23,11 +23,13 @@ class SalesforceAuthService {
   static late final WebViewController webViewController;
 
   static Future<String?> authenticate(BuildContext context) async {
+    BuildContext currentContext = context;
+
     return Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => Scaffold(
-          appBar: AppBar(),
+          // appBar: AppBar(),
           body: WebView(
             initialUrl: '$authUrl?response_type=code&client_id=$clientId&redirect_uri=$redirectUri',
             javascriptMode: JavascriptMode.unrestricted,
@@ -59,6 +61,7 @@ class SalesforceAuthService {
                   if (tokenResponse.statusCode == 200) {
                     Logger().d('Token is received as: ${tokenResponse.body}');
                     await _saveToFile(tokenResponse.body);
+                    Navigator.pop(context);
                     _completer.complete(tokenResponse.body);
                   } 
                   else {
@@ -90,7 +93,7 @@ class SalesforceAuthService {
     Logger().d('Inside get from file method=>');
     final directory = await getApplicationDocumentsDirectory();
     final file = File('${directory.path}/$tokenFileName');
-    String value = '';
+    String? value = '';
     if (await file.exists()) {
       final contents = await file.readAsString();
       final Map<String, dynamic> data = json.decode(contents);
@@ -121,7 +124,7 @@ class SalesforceAuthService {
       },
     );
     await handleResponse(response);
-    
+
     Logger().d('after logout file is => ${getFromFile()}');
   }
 

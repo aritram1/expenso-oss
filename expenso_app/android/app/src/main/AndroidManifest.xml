@@ -32,4 +32,8 @@
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
+    <!-- Following permissions are for SMS READ and SEND -->
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.READ_SMS" />
 </manifest>
