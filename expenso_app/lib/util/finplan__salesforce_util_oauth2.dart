@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 import 'package:expenso_app/util/finplan__exception_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -30,48 +29,50 @@ class SalesforceAuthService {
       MaterialPageRoute(
         builder: (context) => Scaffold(
           // appBar: AppBar(),
-          body: WebView(
-            initialUrl: '$authUrl?response_type=code&client_id=$clientId&redirect_uri=$redirectUri',
-            javascriptMode: JavascriptMode.unrestricted,
-            onWebViewCreated: (controller) {
-              webViewController = controller;
-            },
-            navigationDelegate: (NavigationRequest request) async {
-              
-              Logger().d('Navigating to: ${request.url}');
-              Logger().d('RedirectURI is $redirectUri');
-
-              if (request.url.startsWith(redirectUri)) {
-                final uri = Uri.parse(request.url);
-                final code = uri.queryParameters['code'];
-                Logger().d('Code is $code');
-                if (code != null) {
-                  final tokenResponse = await http.post(
-                    Uri.parse(tokenUrl),
-                    headers: {
-                      HttpHeaders.contentTypeHeader: 'application/x-www-form-urlencoded',
-                    },
-                    body: {
-                      'grant_type': 'authorization_code',
-                      'client_id': clientId,
-                      'redirect_uri': redirectUri,
-                      'code': code,
-                    },
-                  );
-                  if (tokenResponse.statusCode == 200) {
-                    Logger().d('Token is received as: ${tokenResponse.body}');
-                    await _saveToFile(tokenResponse.body);
-                    Navigator.pop(context);
-                    _completer.complete(tokenResponse.body);
-                  } 
-                  else {
-                    _completer.completeError('Failed to get access token : ${tokenResponse.body}');
+          body: SafeArea(
+            child: WebView(
+              initialUrl: '$authUrl?response_type=code&client_id=$clientId&redirect_uri=$redirectUri',
+              javascriptMode: JavascriptMode.unrestricted,
+              onWebViewCreated: (controller) {
+                webViewController = controller;
+              },
+              navigationDelegate: (NavigationRequest request) async {
+                
+                Logger().d('Navigating to: ${request.url}');
+                Logger().d('RedirectURI is $redirectUri');
+            
+                if (request.url.startsWith(redirectUri)) {
+                  final uri = Uri.parse(request.url);
+                  final code = uri.queryParameters['code'];
+                  Logger().d('Code is $code');
+                  if (code != null) {
+                    final tokenResponse = await http.post(
+                      Uri.parse(tokenUrl),
+                      headers: {
+                        HttpHeaders.contentTypeHeader: 'application/x-www-form-urlencoded',
+                      },
+                      body: {
+                        'grant_type': 'authorization_code',
+                        'client_id': clientId,
+                        'redirect_uri': redirectUri,
+                        'code': code,
+                      },
+                    );
+                    if (tokenResponse.statusCode == 200) {
+                      Logger().d('Token is received as: ${tokenResponse.body}');
+                      await _saveToFile(tokenResponse.body);
+                      Navigator.pop(context);
+                      _completer.complete(tokenResponse.body);
+                    } 
+                    else {
+                      _completer.completeError('Failed to get access token : ${tokenResponse.body}');
+                    }
                   }
+                  return NavigationDecision.prevent;
                 }
-                return NavigationDecision.prevent;
-              }
-              return NavigationDecision.navigate;
-            },
+                return NavigationDecision.navigate;
+              },
+            ),
           ),
         ),
       ),

@@ -5,7 +5,6 @@ import 'package:expenso_app/screens/finplan__app_login.dart';
 import 'package:expenso_app/util/finplan__salesforce_util_oauth2.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
-import 'package:path_provider/path_provider.dart';
 
 class FinPlanSplashPage extends StatefulWidget {
   const FinPlanSplashPage({Key? key, required this.title}) : super(key: key);
@@ -42,6 +41,7 @@ class _FinPlanSplashPageState extends State<FinPlanSplashPage> {
           Logger().d('Inside build method of splash page, the value of token is ${snapshot.data}');
           final bool isLoggedIn = (snapshot.data != null) ? true : false;
           if (isLoggedIn) {
+          // if (!isLoggedIn) { //debugging
             return Scaffold(
               body: FinPlanAppHomePage(title: 'Expenso')
             );

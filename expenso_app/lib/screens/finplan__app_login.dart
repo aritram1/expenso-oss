@@ -1,10 +1,7 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 import 'package:expenso_app/screens/finplan__app_home_page.dart';
 import 'package:expenso_app/util/finplan__salesforce_util_oauth2.dart';
-import 'package:expenso_app/widgets/finplan__Tile.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 
 class FinPlanLoginPage extends StatefulWidget {
