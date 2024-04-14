@@ -39,9 +39,9 @@ class _FinPlanSplashPageState extends State<FinPlanSplashPage> {
         } 
         else {
           Logger().d('Inside build method of splash page, the value of token is ${snapshot.data}');
-          final bool isLoggedIn = (snapshot.data != null) ? true : false;
-          if (isLoggedIn) {
-          // if (!isLoggedIn) { //debugging
+          // final bool isLoggedIn = (snapshot.data != null && snapshot.data != '') ? true : false;
+          // if (isLoggedIn) {
+          if (snapshot.data != null && snapshot.data != ''){
             return Scaffold(
               body: FinPlanAppHomePage(title: 'Expenso')
             );

@@ -123,7 +123,12 @@ class _FinPlanAppHomePageState extends State<FinPlanAppHomePage> {
                     return true;
                   },
                   Icons.logout : ({input = ''}) async{
-                    await SalesforceAuthService.logout();
+                    try{
+                      await SalesforceAuthService.logout();
+                    }
+                    catch(error){
+                      log.e('Error while doing logout : $error');
+                    }
                     Navigator.of(context).pop();
                     return true;
                   }
@@ -403,7 +408,7 @@ class _FinPlanAppHomePageState extends State<FinPlanAppHomePage> {
   // A generic method to handle routes
   void navigateTo(BuildContext context, Widget? widget) async {
     String contents = await SalesforceAuthService.getFromFile() ?? ''; // 'access_token') ?? 'Hello Hi there, no token yet!';
-    String value = 'pyak pyak';
+    String value = 'pyak pyak (you are not logged in yet)';
     Logger().d('Inside navigate to method : $contents');
     if(contents != ''){
       final Map<String, dynamic> data = json.decode(contents);
