@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:device_info/device_info.dart';
 import 'package:expenso_app/screens/finplan__app_bar.dart';
+import 'package:expenso_app/screens/finplan__calendar.dart';
 import 'package:expenso_app/screens/finplan__messages_all.dart';
 import 'package:expenso_app/util/expense_data_generator.dart';
 import 'package:expenso_app/widgets/finplan__Tile.dart';
@@ -163,7 +164,14 @@ class _FinPlanAppHomePageState extends State<FinPlanAppHomePage> {
                             ),
                             onCallBack: (){
                               var currentContext = context;
-                              navigateTo(currentContext, null);
+                              navigateTo(currentContext, Scaffold(
+                                appBar: AppBar(), 
+                                body: FinPlanCalendar(
+                                  onCallBack: ()=>{
+
+                                  }
+                                )
+                              ));
                             }
                           )
                         ),

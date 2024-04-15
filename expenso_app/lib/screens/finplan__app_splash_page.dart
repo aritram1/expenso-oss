@@ -2,6 +2,7 @@
 
 import 'package:expenso_app/screens/finplan__app_home_page.dart';
 import 'package:expenso_app/screens/finplan__app_login.dart';
+import 'package:expenso_app/screens/finplan__calendar.dart';
 import 'package:expenso_app/util/finplan__salesforce_util_oauth2.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
@@ -43,7 +44,7 @@ class _FinPlanSplashPageState extends State<FinPlanSplashPage> {
           // if (isLoggedIn) {
           if (snapshot.data != null && snapshot.data != ''){
             return Scaffold(
-              body: FinPlanAppHomePage(title: 'Expenso')
+              body: FinPlanCalendar(onCallBack: ()=>{}) // FinPlanAppHomePage(title: 'Expenso')
             );
           } else {
             return Scaffold(
