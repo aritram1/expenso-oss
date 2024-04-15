@@ -1,9 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:expenso_app/util/finplan__calendar_util.dart';
-import 'package:expenso_app/widgets/finplan__Tile.dart';
 import 'package:expenso_app/widgets/finplan__listview.dart';
-import 'package:expenso_app/widgets/finplan__listview_future.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -106,9 +104,12 @@ class _FinPlanCalendarState extends State<FinPlanCalendar> {
         future: FinPlanCalendarUtil().getFutureData(day: taskDateTime), 
         builder: (context, snapshot){
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: const CircularProgressIndicator(),
+            return Center(
+              child: SizedBox(
+                height: 40,
+                width: 40,
+                child: const CircularProgressIndicator(),
+              ),
             ); // Show loading indicator while waiting for data
           }
           else if (snapshot.hasError) {
@@ -132,91 +133,5 @@ class _FinPlanCalendarState extends State<FinPlanCalendar> {
       ),
     );
   }
-
-  // return Center(
-  //     child: Padding(
-  //       padding: const EdgeInsets.all(8.0),
-  //       child: Column(
-  //         children: [
-  //           const Text('Current Tasks', style: TextStyle(color: Colors.red)),
-  //           const SizedBox(height: 16),
-            
-  //           FinPlanListViewFuture(
-  //             records: getCurrentTaskRecords(), 
-  //             onRecordSelected: (input) {
-    
-  //             },
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-
-  
-
-  // Widget createListView() {
-  //   return Expanded(  // Wrap ListView with Expanded to ensure it takes up available space
-  //     child: FutureBuilder<Map<String, dynamic>>(
-  //       future: getTasksAsync(),
-  //       builder: (context, snapshot) {
-  //         if (snapshot.connectionState == ConnectionState.waiting) {
-  //           return Padding(
-  //             padding: const EdgeInsets.all(8.0),
-  //             child: const CircularProgressIndicator(),
-  //           )
-  //           ; // Show loading indicator while waiting for data
-  //         } else if (snapshot.hasError) {
-  //           return Text("Error: ${snapshot.error}"); // Show error if any
-  //         } else if (snapshot.hasData) {
-  //           var tasks = snapshot.data!['data'] as List<dynamic>;
-  //           Logger().d('Task size=> ${tasks.length}');
-  //           Logger().d('Tasks=> $tasks');
-            
-  //           return ListView.builder(
-  //             itemCount: tasks.length,
-  //             itemBuilder: (context, index) {
-  //               var task = tasks[index];
-  //               Logger().d('$index => ${task['id']}');
-  //               return Padding(
-  //                 padding: const EdgeInsets.all(8.0),
-  //                 // child: FinPlanTile(
-  //                 //   onCallBack: (){},
-  //                 //   topLeft: Text(task['id']),
-  //                 //   center: Text(task['details'] ?? 'O lala'),
-  //                 // ),
-  //                 child: Container(
-  //                   decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(10))),
-  //                   child: ListTile(
-  //                     leading: Checkbox(
-  //                       value: selectedIds.contains(task['id']),
-  //                       onChanged: (bool? value) {
-  //                         setState(() {
-  //                           Logger().d('value=> $value');
-  //                           if(selectedIds.contains(task['id'])){
-  //                             selectedIds.remove(task['id']);
-  //                           }
-  //                           else{
-  //                             selectedIds.add(task['id']);
-  //                           }
-  //                           Logger().d('selectedIds=> $selectedIds');
-  //                         });
-  //                       },
-  //                     ),
-  //                     title: Text(task['name']),
-  //                     subtitle: Text(task['details']),
-  //                     trailing: Text(task['date']),
-  //                     tileColor: selectedIds.contains(task['id']) ? Colors.red.shade200 : Colors.green.shade100,
-  //                   ),
-  //                 ),
-  //               );
-  //             },
-  //           );
-  //         } else {
-  //           return const Text("No data available"); // Handle case where no data is returned
-  //         }
-  //       },
-  //     ),
-  //   );
-  // }
 
 }
