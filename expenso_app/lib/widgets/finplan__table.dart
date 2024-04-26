@@ -265,7 +265,7 @@ class FinPlanTableWidgetState extends State<FinPlanTableWidget> {
       isLoading = true;
     });
 
-    // await _sortColumn(colIndex);
+    await _sortColumn(colIndex);
 
     // Way to create async mocking
     await Future.delayed(const Duration(milliseconds: 100));
@@ -302,14 +302,14 @@ class FinPlanTableWidgetState extends State<FinPlanTableWidget> {
       int result = 0;
 
       if(detaildebug){
-        // log.d('a => $a');
-        // log.d('b => $b');
+        log.d('a => $a');
+        log.d('b => $b');
       }
       String columnName = widget.header[sortColumnIndex]['label']!;
 
       if(detaildebug){
-        // log.d('a => ${a[columnName]}');//I am here sortColumnIndex => $sortColumnIndex $_sortAscending');
-        // log.d('b => ${b[columnName]}');//log.d('I am here sortColumnIndex => $sortColumnIndex $_sortAscending');
+        log.d('a[columnName] => ${a[columnName]}');//I am here sortColumnIndex => $sortColumnIndex $_sortAscending');
+        log.d('b[columnName] => ${b[columnName]}');//log.d('I am here sortColumnIndex => $sortColumnIndex $_sortAscending');
       }
       
       if (columnIndex == constNameColumnId) { // constNameColumnId = 0;
@@ -319,6 +319,10 @@ class FinPlanTableWidgetState extends State<FinPlanTableWidget> {
         result = compareNumeric(a[columnName], b[columnName]);
       }
       else if (columnIndex == constDateColumnId) {  // constDateColumnId = 2
+        Logger().d('columnIndex => $columnIndex');
+        Logger().d('a => $a');
+        Logger().d('b => $b');
+
         result = compareDates(a[columnName], b[columnName]);
       }
       if(detaildebug) log.d('Interim result : $result');
@@ -326,22 +330,41 @@ class FinPlanTableWidgetState extends State<FinPlanTableWidget> {
       // Second layer sorting 
       // If the first column comparison is equal, use another column for sorting. See the default order below
       if (result == 0) {
+
+        String name1 = a[widget.header[constNameColumnId]['label']];
+        double amount1 = a[widget.header[constAmountColumnId]['label']];
+        DateTime lupdated1 = a[widget.header[constDateColumnId]['label']];
+
+        String name2 = b[widget.header[constNameColumnId]['label']];
+        double amount2 = b[widget.header[constAmountColumnId]['label']];
+        DateTime lupdated2 = b[widget.header[constDateColumnId]['label']];
+
+
+        if(detaildebug){
+          log.d('name1 : $name1');
+          log.d('amt1 : $amount1');
+          log.d('lupdated1 : $lupdated1');
+          log.d('name2 : $name2');
+          log.d('amt2 : $amount2');
+          log.d('lupdated2 : $lupdated2');
+        }
+
         if (columnIndex == constNameColumnId) {
-          result = compareDates(a[widget.header[constDateColumnId]], b[widget.header[constDateColumnId]]); // If still `amounts` are same finally sort by `date`
+          result = compareDates(lupdated1, lupdated2);
           if (result == 0) {
-            result = compareNumeric(a[widget.header[constAmountColumnId]], b[widget.header[constAmountColumnId]]); // If `names` are same sort by `amount`
+            result = compareNumeric(amount2, amount2);
           }
         } 
         else if (columnIndex == constAmountColumnId) {
-          result = compareStrings(a[widget.header[constNameColumnId]], b[widget.header[constNameColumnId]]); // If `amounts` are same sort by `name`
+          result = compareStrings(name1, name2);  // If `amounts` are same sort by `name`
           if (result == 0) {
-            result = compareDates(a[widget.header[constDateColumnId]], b[widget.header[constDateColumnId]]); // If still `names` are same sort by `date`
+            result = compareDates(lupdated1, lupdated2);  // If still `names` are same sort by `date`
           }
         } 
         else if (columnIndex == constDateColumnId) {
-          result = compareStrings(a[widget.header[constNameColumnId]], b[widget.header[constNameColumnId]]); // If dates are same sort by names
+          result = compareStrings(name1, name2); // If dates are same sort by names
           if (result == 0) {
-            result = compareNumeric(a[widget.header[constAmountColumnId]], b[widget.header[constAmountColumnId]]); // If still names are same finally sort by amount
+            result = compareNumeric(amount2, amount2); // If still names are same finally sort by amount
           }
         }
       }

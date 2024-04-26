@@ -6,6 +6,7 @@ import 'package:device_info/device_info.dart';
 import 'package:expenso_app/screens/app_bar/finplan__app_bar.dart';
 import 'package:expenso_app/screens/calendar/finplan__calendar_view.dart';
 import 'package:expenso_app/screens/message/finplan__all_messages_view.dart';
+import 'package:expenso_app/screens/transaction/finplan__transactions_all.dart';
 import 'package:expenso_app/util/expense_data_generator.dart';
 import 'package:expenso_app/widgets/finplan__Tile.dart';
 import 'package:flutter/material.dart';
@@ -293,7 +294,7 @@ class _FinPlanAppHomePageState extends State<FinPlanAppHomePage> {
                                 ),
                                 onCallBack: (){
                                   var currentContext = context;
-                                  navigateTo(currentContext, null);  
+                                  navigateTo(currentContext, Scaffold(body: FinPlanAllTransactions()));
                                 }
                               )
                             ),
