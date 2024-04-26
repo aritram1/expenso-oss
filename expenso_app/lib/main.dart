@@ -1,6 +1,6 @@
-import 'package:expenso_app/screens/finplan__app_splash_page.dart';
-import 'package:expenso_app/screens/finplan__calendar.dart';
-import 'package:expenso_app/services/database_service.dart';
+import 'package:expenso_app/screens/splash_page/finplan__app_splash_page.dart';
+import 'package:expenso_app/screens/calendar/finplan__calendar_view.dart';
+import 'package:expenso_app/db/services/finplan__DBInitializer.dart';
 import 'package:expenso_app/util/finplan__constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -41,6 +41,11 @@ initDB() async{
   WidgetsFlutterBinding.ensureInitialized();
   final isDbCreated = await DatabaseService.instance.initializeDatabase();
   Logger().d('DB Created > $isDbCreated');
+  
+  final db = await DatabaseService.instance.database;
+  List<Map<String, dynamic>> tables = await db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'");
+  Logger().d('All tables=> ${tables.map((table) => table['name'] as String).toList()}');
+
 }
 
 // Actual Widget

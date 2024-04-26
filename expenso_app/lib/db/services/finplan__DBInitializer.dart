@@ -20,7 +20,6 @@ class DatabaseService {
     if (_database != null) {
       return true; // Database already exists
     }
-
     _database = await _initDatabase();
     return _database != null;
   }
@@ -35,22 +34,33 @@ class DatabaseService {
     );
   }
 
+  Future<void> reInitialize(Database db, int version) async {
+    // delete the tables and recreate later
+    await db.execute('DROP TABLE IF EXISTS Tasks');
+  }
+
+
   Future<void> _createDatabase(Database db, int version) async {
+
     await db.execute('''
       CREATE TABLE IF NOT EXISTS tokenTable (
         access_token TEXT PRIMARY KEY
       )
     ''');
 
-    // await db.execute('''
-    //   CREATE TABLE IF NOT EXISTS tokenTable (
-    //     id TEXT PRIMARY KEY,
-    //     access_token TEXT PRIMARY KEY,
-    //     expires_at TEXT,
-    //     amount REAL,
-    //     date TEXT
-    //   )
-    // ''');
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS task (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        when TEXT,
+        details TEXT,
+        priority REAL,
+        recurring BOOL,
+        allDay BOOL,
+        completed BOOL,
+        recurring BOOL
+      )
+    ''');
     
     // await db.execute('''
     //   CREATE TABLE IF NOT EXISTS expenses (

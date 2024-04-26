@@ -88,7 +88,7 @@ class FinPlanDatepickerPanelState extends State<FinPlanDatepickerPanel> {
                   TextButton(
                     onPressed: () => _selectDate(context, startDate, startOrEndDate: 'start'),
                     child: Text(
-                      DateFormat(DATE_FORMAT_IN ).format(startDate), // DATE_FORMAT_IN is MM-DD-YYYY
+                      DateFormat(DATE_FORMAT_IN).format(startDate), // DATE_FORMAT_IN is MM-DD-YYYY
                       style: const TextStyle(fontSize: 16),
                     ),
                   ),

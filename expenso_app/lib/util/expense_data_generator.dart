@@ -238,7 +238,9 @@ class ExpenseDataGenerator {
   }
 
 
-  static Future<Map<String, dynamic>> syncMessages(String deviceId) async{
+  static Future<Map<String, dynamic>> syncMessages() async{
+
+    String deviceId = await getDeviceId();
 
     // Call the specific API to delete all messages and transactions
     String mesageAndTransactionsDeleteMessage = await hardDeleteMessagesAndTransactions(deviceId);
@@ -270,4 +272,10 @@ class ExpenseDataGenerator {
     return mesageAndTransactionsDeleteMessage;
   }
 
+}
+
+Future<String> getDeviceId() async {
+  AndroidDeviceInfo androidInfo = await DeviceInfoPlugin().androidInfo;
+  String deviceId = androidInfo.model;
+  return deviceId;
 }
