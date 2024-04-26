@@ -428,6 +428,7 @@ class FinPlanTableWidgetState extends State<FinPlanTableWidget> {
       String mm = yyyymmdd.split('-')[1];
       String dd = yyyymmdd.split('-')[2];
       formattedCellData = '$dd/$mm/$yy';
+      Logger().d('formattedCellData=> $formattedCellData');
     }
     /////////////////////////// For DateTime type columns ////////////////////////////////////
     else if(dateTimeColumns.contains(columnName)){

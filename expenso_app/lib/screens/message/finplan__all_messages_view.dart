@@ -59,7 +59,7 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
                 setState(() {
                   isLoading = true;
                 });
-                
+
                 // await Future.delayed(const Duration(seconds: 3));
                 
                 var result = await ExpenseDataGenerator.syncMessages(); // Call the method now
@@ -129,7 +129,7 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
                     header: const [
                       {'label': 'Paid To', 'type': 'String'},
                       {'label': 'Amount', 'type': 'double'},
-                      {'label': 'Date', 'type': 'DateTime'},
+                      {'label': 'Date', 'type': 'date'},
                     ],
                     defaultSortcolumnName: 'Date',
                     tableButtonName: 'Approve',
@@ -172,12 +172,10 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
   }
 
   // method to get widget data
-  Future<List<Map<String, dynamic>>> handleFutureDataForExpense0(
-      DateTime startDate, DateTime endDate) async {
+  Future<List<Map<String, dynamic>>> handleFutureDataForExpense0(DateTime startDate, DateTime endDate) async {
     try {
-      return Future.value(
-          await ExpenseDataGenerator.generateDataForExpenseScreen0(
-              startDate: startDate, endDate: endDate));
+      var data = await ExpenseDataGenerator.generateDataForExpenseScreen0(startDate: startDate, endDate: endDate);
+      return Future.value(data);
       // return data;
     } catch (error, stackTrace) {
       log.e('Error in handleFutureDataForExpense0: $error');
