@@ -37,19 +37,21 @@ class _FinPlanListViewState extends State<FinPlanListView> {
   
   Widget getEachListTile(BuildContext context, Map<String, dynamic> each) {
 
-    String id = each['id'];
-    String name = each['name'];
-    String date = each['date'];
-    String details = each['details'];
-    bool completed = each['completed'] == '1';
-    String imp = each['imp'];
+    String id = each['id'].toString();
+    String name = each['name'].toString();
+    String when = each['when'].toString();
+    String details = each['details'].toString();
+    bool completed = each['completed'] ?? false;
+    bool allDay = each['allDay'] ?? false;
+    bool recurring = each['recurring'] ?? false;
+    int priority = each['priority'].toInt();
 
     return 
     Padding(
       padding: const EdgeInsets.symmetric(horizontal : 8.0),
       child: Container(
         decoration: BoxDecoration(
-          color : getTileColor(imp),
+          color : getTileColor(priority),
           borderRadius: BorderRadius.circular(10)
         ),
         child: ListTile(
@@ -68,23 +70,23 @@ class _FinPlanListViewState extends State<FinPlanListView> {
           ),
           title: completed ? Text(name, style: TextStyle(decoration: TextDecoration.lineThrough),) : Text(name),
           subtitle: Text(details),
-          trailing: Text(date),
+          trailing: Text(when),
           // tileColor: getTileColor(imp),
         ),
       ),
     );
   }
   
-  Color getTileColor(String imp) {
+  Color getTileColor(int priority) {
     Color color = Colors.black;
-    switch (imp) {
-      case 'h':
+    switch (priority) {
+      case 1:
         color = Colors.red.shade200;
         break;
-      case 'm':
+      case 2:
         color = Colors.amber.shade200;
         break;
-      case 'l':
+      case 3:
         color = Colors.green.shade200;
         break;
       default:

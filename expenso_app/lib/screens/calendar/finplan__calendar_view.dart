@@ -1,6 +1,8 @@
 // ignore_for_file: prefer_const_constructors
 
-import 'package:expenso_app/util/finplan__calendar_util.dart';
+import 'package:expenso_app/screens/app_home/finplan__app_home_page.dart';
+import 'package:expenso_app/screens/calendar/finplan__newtask_view.dart';
+import 'package:expenso_app/screens/calendar/finplan__util.dart';
 import 'package:expenso_app/widgets/finplan__listview.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
@@ -55,9 +57,26 @@ class _FinPlanCalendarState extends State<FinPlanCalendar> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.green,
         onPressed: () {
-          // Add logic for FAB
-        },
-        child: const Icon(Icons.add),
+          Navigator.push(
+            context, 
+            MaterialPageRoute(
+              builder: (context)=>  
+                Scaffold(
+                  appBar: AppBar(), 
+                  body : FinPlanCalendarTask(
+                    selectedDay : _selectedDay ?? _focusedDay, // if selectedDay is lready selecteda use that, else use focusDay
+                    onCallBack: (){
+                      setState(() {
+                        // just to rebuild the widget
+                      });
+                      Logger().d('FinPlanCalendarTask completed!');
+                    }
+                  )
+                )
+              )
+            );
+          },
+          child: const Icon(Icons.add),
       ),
     );
   }

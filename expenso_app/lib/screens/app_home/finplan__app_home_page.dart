@@ -3,9 +3,9 @@
 import 'dart:convert';
 
 import 'package:device_info/device_info.dart';
-import 'package:expenso_app/screens/finplan__app_bar.dart';
-import 'package:expenso_app/screens/finplan__calendar.dart';
-import 'package:expenso_app/screens/finplan__messages_all.dart';
+import 'package:expenso_app/screens/app_bar/finplan__app_bar.dart';
+import 'package:expenso_app/screens/calendar/finplan__calendar_view.dart';
+import 'package:expenso_app/screens/message/finplan__all_messages_view.dart';
 import 'package:expenso_app/util/expense_data_generator.dart';
 import 'package:expenso_app/widgets/finplan__Tile.dart';
 import 'package:flutter/material.dart';
@@ -111,18 +111,6 @@ class _FinPlanAppHomePageState extends State<FinPlanAppHomePage> {
                   Icons.satellite : ({input = ''}) async{
                     return true;
                   },
-                  Icons.refresh : ({input = ''}) async{
-                    BuildContext currentContext = context;
-                    // Get an alert dialog as confirmation box
-                    bool shouldProceed = await showConfirmationBox(currentContext, 'Sync');
-                    if(shouldProceed){
-                      AndroidDeviceInfo androidInfo = await DeviceInfoPlugin().androidInfo;
-                      String deviceId = androidInfo.model;
-                      await ExpenseDataGenerator.syncMessages(deviceId); // Call the method now
-                    }
-                    Navigator.of(context).pop();
-                    return true;
-                  },
                   Icons.logout : ({input = ''}) async{
                     try{
                       await SalesforceAuthService.logout();
@@ -165,7 +153,7 @@ class _FinPlanAppHomePageState extends State<FinPlanAppHomePage> {
                             onCallBack: (){
                               var currentContext = context;
                               navigateTo(currentContext, Scaffold(
-                                appBar: AppBar(), 
+                                // appBar: AppBar(), 
                                 body: FinPlanCalendar(
                                   onCallBack: ()=>{
 
@@ -283,7 +271,7 @@ class _FinPlanAppHomePageState extends State<FinPlanAppHomePage> {
                                 ),
                                 onCallBack: (){
                                   var currentContext = context;
-                                  navigateTo(currentContext, Scaffold(appBar: AppBar(), body: FinPlanAllMessages()));
+                                  navigateTo(currentContext, Scaffold(body: FinPlanAllMessages()));
                                 }
                               )
                             ),
@@ -442,37 +430,4 @@ class _FinPlanAppHomePageState extends State<FinPlanAppHomePage> {
     );
   }
 
-  // A confirmation box to show if its ok to proceed with sync and delete operation
-  static Future<dynamic> showConfirmationBox(BuildContext context, String opType){
-    String title = 'Please confirm'; 
-    String choiceYes = 'Yes';
-    String choiceNo = 'No';
-    String content =  (opType == 'Sync') 
-                            ? 'This will delete existing messages and recreate them. Proceed?' 
-                            : 'This will delete all messages and transactions. Proceed?' ;
-    
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(title),
-          content: Text(content),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(false); // User clicked No
-              },
-              child: Text(choiceNo),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(true); // User clicked Yes
-              },
-              child: Text(choiceYes),
-            ),
-          ],
-        );
-      },
-    );
-  }
 }
