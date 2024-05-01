@@ -1,5 +1,4 @@
 // ignore_for_file: constant_identifier_names
-import 'package:expenso_app/db/services/finplan__DBInitializer.dart';
 import 'package:expenso_app/util/finplan__salesforce_util.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:logger/logger.dart';
