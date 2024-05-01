@@ -1,10 +1,6 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
-import 'dart:convert';
-import 'package:device_info/device_info.dart';
-import 'package:expenso_app/screens/app_bar/finplan__app_bar.dart';
-import 'package:expenso_app/screens/message/finplan__message_view.dart';
-import 'package:expenso_app/util/expense_data_generator.dart';
+import 'package:expenso_app/screens/message/finplan__util.dart';
 import 'package:expenso_app/widgets/finplan__datepicker_panel.dart';
 import 'package:expenso_app/widgets/finplan__table.dart';
 import 'package:flutter/material.dart';
@@ -37,8 +33,7 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
   @override
   void initState() {
     super.initState();
-    data = handleFutureDataForExpense0(selectedStartDate,
-        selectedEndDate); // generate the data for the first time
+    data = getAllTransactionMessages(selectedStartDate,selectedEndDate); // generate the data for the first time
   }
 
   @override
@@ -62,7 +57,7 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
 
                 // await Future.delayed(const Duration(seconds: 3));
                 
-                var result = await ExpenseDataGenerator.syncMessages(); // Call the method now
+                var result = await FinPlanMessagesUtil.syncMessages(); // Call the method now
                 Logger().d('result is=> $result');
                 
                 setState(() {
@@ -172,13 +167,13 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
   }
 
   // method to get widget data
-  Future<List<Map<String, dynamic>>> handleFutureDataForExpense0(DateTime startDate, DateTime endDate) async {
+  Future<List<Map<String, dynamic>>> getAllTransactionMessages(DateTime startDate, DateTime endDate) async {
     try {
-      var data = await ExpenseDataGenerator.generateDataForExpenseScreen0(startDate: startDate, endDate: endDate);
+      var data = await FinPlanMessagesUtil.getAllTransactionMessages(startDate: startDate, endDate: endDate);
       return Future.value(data);
       // return data;
     } catch (error, stackTrace) {
-      log.e('Error in handleFutureDataForExpense0: $error');
+      log.e('Error in getAllTransactionMessages: $error');
       log.e('Stack trace: $stackTrace');
       return Future.value([]);
     }
@@ -190,7 +185,7 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
     setState(() {
       selectedStartDate = startDate;
       selectedEndDate = endDate;
-      data = handleFutureDataForExpense0(startDate, endDate);
+      data = getAllTransactionMessages(startDate, endDate);
     });
   }
 }

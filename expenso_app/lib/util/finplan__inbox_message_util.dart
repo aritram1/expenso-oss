@@ -8,7 +8,7 @@ import 'package:logger/logger.dart';
 import 'package:device_info/device_info.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-class MessageUtil {
+class FinPlanInboxMessageUtil {
 
   static bool debug = bool.parse(dotenv.env['debug'] ?? 'false');
   static bool detaildebug = bool.parse(dotenv.env['detaildebug'] ?? 'false');

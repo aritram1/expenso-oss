@@ -298,7 +298,7 @@ Future<dynamic> showConfirmationBox(BuildContext context, String opType) {
   );
 }
 
-// Archive
+// TB documented
 // json format for data for this widget
 // {
 //   'Paid To': '',
@@ -306,4 +306,5 @@ Future<dynamic> showConfirmationBox(BuildContext context, String opType) {
 //   'Date': '',
 //   'Id': '',
 //   'BeneficiaryType': '',
+//   ... etc
 // }
