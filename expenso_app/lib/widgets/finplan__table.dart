@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:expenso_app/util/finplan__exception.dart';
+import 'package:expenso_app/util/finplan__message_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:intl/intl.dart';
@@ -245,12 +246,19 @@ class FinPlanTableWidgetState extends State<FinPlanTableWidget> {
           handleRowSelection(selected, rowIndex);
         },
         cells: List.generate(widget.header.length, (index) {
+
+          String headerLabel = widget.header[index]['label']!;
+          
           return DataCell(
             SizedBox(
               width: MediaQuery.of(context).size.width * widget.columnWidths[index], // Use provided column width
               child: Padding(
                 padding: const EdgeInsets.all(1.0),
-                child : Text(getFormattedCellData(widget.header[index]['label']!, row), maxLines: 2)
+                child : Text(
+                  getFormattedCellData(headerLabel, row), 
+                  style: getTextStyle(headerLabel, row),
+                  maxLines: 2
+                )
               )
             ),
           );
@@ -350,9 +358,9 @@ class FinPlanTableWidgetState extends State<FinPlanTableWidget> {
         }
 
         if (columnIndex == constNameColumnId) {
-          result = compareDates(lupdated1, lupdated2);
+          result = compareDates(lupdated1, lupdated2); // If `names` are same sort by `date`
           if (result == 0) {
-            result = compareNumeric(amount2, amount2);
+            result = compareNumeric(amount2, amount2); // If still `dates` are same finally sort by amount
           }
         } 
         else if (columnIndex == constAmountColumnId) {
@@ -421,9 +429,28 @@ class FinPlanTableWidgetState extends State<FinPlanTableWidget> {
     });
   }
 
+  TextStyle getTextStyle(String? headerName, dynamic row) { 
+    Logger().d('row= $row');
+    String txnType = row['Type'];// credit or debit
+    Color color = Colors.black;
+    if(headerName == 'Amount'){
+      switch(txnType){
+        case 'credit':
+          color = Colors.green;
+          break;
+        case 'debit':
+          color = Theme.of(context).primaryColor;
+          break;
+        default:
+          break;
+      }
+    }
+    return TextStyle(color: color);
+  }
+
   Icon getIcon(String columnName, dynamic row){
     Icon icon = const Icon(Icons.other_houses_sharp);
-    String type = row['FinPlan__Type__c'] ?? '';
+    String type = row['BeneficiaryType'] ?? '';
     switch (type) {
       case 'Grocery':
         icon = const Icon(Icons.local_grocery_store);

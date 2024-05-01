@@ -289,6 +289,9 @@ Future<dynamic> showConfirmationBox(BuildContext context, String opType) {
           TextButton(
             onPressed: () {
               Navigator.of(context).pop(true); // User clicked Yes
+              // setState(() {
+              //   isLoading = true;
+              // });
             },
             child: Text(choiceYes),
           ),
