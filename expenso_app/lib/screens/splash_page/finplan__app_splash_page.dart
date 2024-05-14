@@ -27,10 +27,14 @@ class _FinPlanSplashPageState extends State<FinPlanSplashPage> {
     return SalesforceAuthService.getFromFile(key: 'access_token');
   }
 
+  checkLogin2(){
+    return SalesforceAuthService.checkIfAlreadyLoggedIn();
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<String?>(
-      future: checkLogin(),
+      future: checkLogin2(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());

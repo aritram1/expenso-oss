@@ -4,6 +4,7 @@
 import 'dart:convert';
 import 'dart:core';
 import 'dart:math';
+import 'package:expenso_app/util/finplan__constants.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -130,6 +131,16 @@ class SalesforceUtil{
     Map<String, dynamic> queryFromSalesforceResponse = getGenericResponseTemplate();
     Map<String, dynamic> resp = await _queryFromSalesforce(objAPIName, fieldList, whereClause, orderByClause, count);
     if(detaildebug) log.d('Response is for records : ${resp.toString()}');
+    
+    // Handle the error scenario with an early return a.k.a. `guard clause` ;)
+    bool errorOccurred = (resp.containsKey('error')) ? true : false;
+    if(errorOccurred){
+      queryFromSalesforceResponse['error'] = resp['error'];
+      return queryFromSalesforceResponse;
+    }
+
+    // Handle the success scenario where data is retrieved,
+    // for large data volume like size > 200, the response is chunked and are collated here
     bool done = (resp.containsKey('done') && resp['done']) ? true : false;
     if(done){
       if(resp.containsKey('data')){
@@ -415,24 +426,38 @@ class SalesforceUtil{
       if(detaildebug) log.d('_queryFromSalesforce response.statusCode ${resp.statusCode}');
       if(detaildebug) log.d('_queryFromSalesforce response.body ${resp.body}');
       
-      final Map<String, dynamic> body = json.decode(resp.body);
-      
-      if(detaildebug) log.d('_queryFromSalesforce body : ${body.toString()}');
-      // if(detaildebug) log.d('_queryFromSalesforce body : $body');
-      if (resp.statusCode == 200) {
-        // if(detaildebug) log.d('_queryFromSalesforce resp[done] : ${body['done']}');
-        // if(detaildebug) log.d('_queryFromSalesforce resp[totalSize] : ${body['totalSize']}');
-        // if(detaildebug) log.d('_queryFromSalesforce resp[nextRecordsUrl] : ${body['nextRecordsUrl']}');
+      // Now we need to check the statuscode, 
+      // A - if its a 200 its a proper data response
+      // B - for any error like `Session expired`, the status code is 401
 
+      if (resp.statusCode == 200) {
+        // It's status 200, body will be Map<String, dynamic> type
+        // e.g. [{"message":"Session expired or invalid","errorCode":"INVALID_SESSION_ID"}] // TBU
+        final Map<String, dynamic> body = json.decode(resp.body);      
+        
+        if(detaildebug) log.d('_queryFromSalesforce Status code (200 block) ${resp.statusCode}');
+        if(detaildebug) log.d('_queryFromSalesforce Body (200 block) : ${body.toString()}');
+        
         queryFromSalesforceResponse['data'] = body['records'];
         queryFromSalesforceResponse['totalSize'] = body['totalSize'];
         queryFromSalesforceResponse['done'] = body['done'];
         queryFromSalesforceResponse['nextRecordsUrl'] = body['nextRecordsUrl'];
       }
-      else {
-        // Log an error
-        if(detaildebug) log.d('Response code other than 200 detected : ${resp.body}');
-        queryFromSalesforceResponse['error'] = resp.body;
+      else if(resp.statusCode == 401){
+        // It's status 401, body will be List<dynamic> type
+        // e.g. [{"message":"Session expired or invalid","errorCode":"INVALID_SESSION_ID"}]  
+
+        final List<dynamic> respBody = json.decode(resp.body);
+        final Map<String, dynamic> body = respBody[0];
+        if(detaildebug) log.d('_queryFromSalesforce Status code (401 block) ${resp.statusCode}');
+        if(detaildebug) log.d('_queryFromSalesforce Status body (401 block) ${body.toString()}');
+        queryFromSalesforceResponse['error'] = body.toString();
+      }
+      else{
+        if(detaildebug) log.d('Status code other than 200, 401 detected.');
+        final List<dynamic> respBody = json.decode(resp.body);
+        final Map<String, dynamic> body = respBody[0];
+        queryFromSalesforceResponse['error'] = body.toString();
       }
     }
     catch(error){

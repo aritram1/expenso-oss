@@ -24,35 +24,43 @@ class FinPlanLoginPageState extends State<FinPlanLoginPage> {
         title: Text('Expenso'),
       ),
       body: Center(
-        child: ElevatedButton(
-            child: Text('Login With Salesforce'),
-            onPressed: () async {
-              BuildContext currentContext = context;
-              Logger().d('Token call not started yet!');
-              
-              // isLoading = true;
-              final token = await SalesforceAuthService.authenticate(context);
-              // isLoading = false;
-
-              Logger().d('Token is $token');
-              if (token != null) {
-                Navigator.push(
-                  currentContext,
-                  MaterialPageRoute(
-                    builder: (currentContext) => FinPlanAppHomePage(title: 'Expenso'),
-                  ),
-                );
-              } else {
-                // Send to Login
-                Logger().d('Error');
-                Navigator.push(
-                  currentContext,
-                  MaterialPageRoute(
-                    builder: (currentContext) => FinPlanLoginPage(title: 'Expenso'),
-                  ),
-                );
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('You are currently not logged in!', style: TextStyle(fontSize: 16)),
+            SizedBox(height: 24.0),
+            ElevatedButton(
+              child: Text('Login With Salesforce'),
+              onPressed: () async {
+                BuildContext currentContext = context;
+                Logger().d('Token call not started yet!');
+                
+                // isLoading = true;
+                final token = await SalesforceAuthService.authenticate(context);
+                // isLoading = false;
+          
+                Logger().d('Token is $token');
+                if (token != null) {
+                  Navigator.push(
+                    currentContext,
+                    MaterialPageRoute(
+                      builder: (currentContext) => FinPlanAppHomePage(title: 'Expenso'),
+                    ),
+                  );
+                } else {
+                  // Send to Login
+                  Logger().d('Error');
+                  Navigator.push(
+                    currentContext,
+                    MaterialPageRoute(
+                      builder: (currentContext) => FinPlanLoginPage(title: 'Expenso'),
+                    ),
+                  );
+                }
               }
-            }),
+            ),
+          ],
+        ),
       ),
     );
   }

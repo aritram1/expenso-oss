@@ -68,7 +68,9 @@ class _FinPlanListViewState extends State<FinPlanListView> {
               widget.onRecordSelected(each);
             },
           ),
-          title: completed ? Text(name, style: TextStyle(decoration: TextDecoration.lineThrough),) : Text(name),
+          title: completed 
+            ? Text(name, style: TextStyle(decoration: TextDecoration.lineThrough)) 
+            : Text(name),
           subtitle: Text(details),
           trailing: Text(when),
           // tileColor: getTileColor(imp),

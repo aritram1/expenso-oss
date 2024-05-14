@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:expenso_app/util/finplan__exception.dart';
+import 'package:expenso_app/util/finplan__salesforce_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
@@ -181,8 +182,29 @@ class SalesforceAuthService {
     }
   }
 
-  // Class ends
+  static Future<String?> checkIfAlreadyLoggedIn() async {
+    // Get the existing token
+    String? existingToken = await getFromFile(key: 'access_token'); 
 
+    // do a query callout
+    if(existingToken != '' && existingToken != null){
+      Map<String, dynamic> response = await SalesforceUtil
+                                        .queryFromSalesforce(
+                                          objAPIName: 'FinPlan__SMS_Message__c', 
+                                          fieldList: ['Id'], 
+                                          count : 1
+                                        );
+      dynamic error = response['error'];
+
+      if(error != null && error.isNotEmpty && error.toString().contains('expired')){
+        _clearStoredToken();
+        existingToken = '';
+      }
+    }
+    return existingToken;
+  }
+
+  // Class ends
 }
 
 // Example response structure
