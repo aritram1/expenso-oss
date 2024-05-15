@@ -133,14 +133,14 @@ class SalesforceUtil{
     if(detaildebug) log.d('Response is for records : ${resp.toString()}');
     
     // Handle the error scenario with an early return a.k.a. `guard clause` ;)
-    bool errorOccurred = (resp.containsKey('error')) ? true : false;
-    if(errorOccurred){
+    if(resp.containsKey('error')){
       queryFromSalesforceResponse['error'] = resp['error'];
       return queryFromSalesforceResponse;
     }
 
     // Handle the success scenario where data is retrieved,
-    // for large data volume like size > 200, the response is chunked and are collated here
+    // for large data volume like size > 200, the response is chunked 
+    // based on the variable `done` in the response, and are collated here
     bool done = (resp.containsKey('done') && resp['done']) ? true : false;
     if(done){
       if(resp.containsKey('data')){
