@@ -3,6 +3,7 @@
 import 'package:expenso_app/db/model/finplan__Task.dart';
 import 'package:expenso_app/db/services/finplan__DBInitializer.dart';
 import 'package:expenso_app/screens/calendar/finplan__util.dart';
+import 'package:expenso_app/util/finplan__constants.dart';
 import 'package:expenso_app/widgets/finplan__datepicker_panel.dart';
 import 'package:expenso_app/widgets/finplan__listview.dart';
 import 'package:expenso_app/widgets/finplan__pill_stateful.dart';
@@ -22,6 +23,11 @@ class FinPlanCalendarTask extends StatefulWidget {
 }
 
 class _FinPlanCalendarTaskState extends State<FinPlanCalendarTask> {
+  
+  // generic variables
+  static final Logger log = log;
+  static final bool debug = FinPlanConstant.DEBUG;
+  static final bool detaildebug = FinPlanConstant.DETAILED_DEBUG;
   
   late Task task;
   late DateTime selectedDate;  
@@ -67,7 +73,7 @@ class _FinPlanCalendarTaskState extends State<FinPlanCalendarTask> {
                   }             
                 },
                 onChanged: (value) {
-                  Logger().d('Inside onchanged with $value');
+                  log.d('Inside onchanged with $value');
                 },
               ),
               SizedBox(height: 24),
@@ -87,7 +93,7 @@ class _FinPlanCalendarTaskState extends State<FinPlanCalendarTask> {
                         setState(() {
                           selectedDate = pickedDate;  
                         });
-                        Logger().d('Date picked as => $pickedDate');
+                        log.d('Date picked as => $pickedDate');
                       }
                     },
                     child: Text(selectedDate.toString().split(' ')[0]),
@@ -122,15 +128,15 @@ class _FinPlanCalendarTaskState extends State<FinPlanCalendarTask> {
                           text: daysOfWeek[index], 
                           value: daysOfWeek[index], 
                           onSelectionChanged: (day) {
-                            Logger().d('Before Selected Days : $recurringDays');
-                            Logger().d('Returned day : $day');
+                            log.d('Before Selected Days : $recurringDays');
+                            log.d('Returned day : $day');
                             if(recurringDays.contains(day)){
                               recurringDays.remove(day);
                             }
                             else{
                               recurringDays.add(day);
                             }
-                            Logger().d('After Selected Days : $recurringDays');
+                            log.d('After Selected Days : $recurringDays');
                           }
                         )
                       ),
@@ -141,7 +147,7 @@ class _FinPlanCalendarTaskState extends State<FinPlanCalendarTask> {
               SizedBox(height: 12),
               ElevatedButton(
                 onPressed: () async {
-                  Logger().d('seelcted LALA=> $selectedDate');
+                  log.d('seelcted LALA=> $selectedDate');
                   _formKey.currentState!.save();
                   task = Task(
                     name: taskNameController.text, 
@@ -149,12 +155,12 @@ class _FinPlanCalendarTaskState extends State<FinPlanCalendarTask> {
                     recurring: isRecurring, 
                     detail : taskNameController.text, // To be optimized               
                   );
-                  Logger().d('Task in json format => ${task.toMap()}');
-                  Logger().d('Save button pressed!');
+                  log.d('Task in json format => ${task.toMap()}');
+                  log.d('Save button pressed!');
 
                   final db = await DatabaseService.instance.database;
                   int taskId = await db.insert('task', task.toMap()); // table name is task
-                  Logger().d('New task saved with id $taskId !');
+                  log.d('New task saved with id $taskId !');
 
                   Navigator.of(context).pop();
                 }, 

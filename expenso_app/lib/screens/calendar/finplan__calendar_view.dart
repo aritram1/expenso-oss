@@ -3,6 +3,7 @@
 import 'package:expenso_app/screens/app_home/finplan__app_home_page.dart';
 import 'package:expenso_app/screens/calendar/finplan__newtask_view.dart';
 import 'package:expenso_app/screens/calendar/finplan__util.dart';
+import 'package:expenso_app/util/finplan__constants.dart';
 import 'package:expenso_app/widgets/finplan__listview.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
@@ -18,8 +19,13 @@ class FinPlanCalendar extends StatefulWidget {
 }
 
 class _FinPlanCalendarState extends State<FinPlanCalendar> {
-  late Map<String, dynamic> data;
+  
+  // generic variables
   static final Logger log = Logger();
+  static final bool debug = FinPlanConstant.DEBUG;
+  static final bool detaildebug = FinPlanConstant.DETAILED_DEBUG;
+  
+  late Map<String, dynamic> data;
   Set<String> selectedIds = {};
 
   CalendarFormat _calendarFormat = CalendarFormat.month;
@@ -69,7 +75,7 @@ class _FinPlanCalendarState extends State<FinPlanCalendar> {
                       setState(() {
                         // just to rebuild the widget
                       });
-                      Logger().d('FinPlanCalendarTask completed!');
+                      log.d('FinPlanCalendarTask completed!');
                     }
                   )
                 )
@@ -98,8 +104,8 @@ class _FinPlanCalendarState extends State<FinPlanCalendar> {
           return isSameDay(_selectedDay, day);
         },
         onDaySelected: (selectedDay, focusedDay) {
-          Logger().d('selectedDay is $selectedDay');
-          Logger().d('focused day is $focusedDay');
+          log.d('selectedDay is $selectedDay');
+          log.d('focused day is $focusedDay');
           setState(() {
             _selectedDay = selectedDay;
             _focusedDay = focusedDay; // update `_focusedDay` here as well
@@ -136,8 +142,8 @@ class _FinPlanCalendarState extends State<FinPlanCalendar> {
           }
           else if (snapshot.hasData) {
             var tasks = snapshot.data!['data'];
-            Logger().d('Task size=> ${tasks.length}');
-            Logger().d('Tasks=> $tasks');
+            log.d('Task size=> ${tasks.length}');
+            log.d('Tasks=> $tasks');
             return FinPlanListView(
               records: snapshot.data ?? {'data' : []}, 
               onRecordSelected: (input){

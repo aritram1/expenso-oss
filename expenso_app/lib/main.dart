@@ -6,7 +6,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:logger/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-
 void main() async {
 
   // initialize dot env
@@ -57,6 +56,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    Logger().d('Inside Main method of the application');
     return MaterialApp(
       debugShowCheckedModeBanner: false,// Set it to `true` for debug build
       title: FinPlanConstant.APP_NAME,  // 'Expenso' => This name is shown in `Recent Items` in android

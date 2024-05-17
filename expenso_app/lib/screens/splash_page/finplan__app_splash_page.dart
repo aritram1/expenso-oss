@@ -1,10 +1,11 @@
 // ignore_for_file: prefer_const_constructors, use_build_context_synchronously
 
 import 'package:expenso_app/screens/app_home/finplan__app_home_page.dart';
-import 'package:expenso_app/screens/calendar/finplan__calendar_view.dart';
 import 'package:expenso_app/screens/login_page/finplan__login_view.dart';
+import 'package:expenso_app/util/finplan__constants.dart';
 import 'package:expenso_app/util/finplan__salesforce_util_oauth2.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:logger/logger.dart';
 
 class FinPlanSplashPage extends StatefulWidget {
@@ -17,6 +18,14 @@ class FinPlanSplashPage extends StatefulWidget {
 }
 
 class _FinPlanSplashPageState extends State<FinPlanSplashPage> {
+  
+  // generic variables
+  static final Logger log = Logger();
+  // static final bool debug = FinPlanConstant.DEBUG;
+  // static final bool detaildebug = FinPlanConstant.DETAILED_DEBUG;
+  static bool debug = bool.parse(dotenv.env['debug'] ?? 'false');
+  static bool detaildebug = bool.parse(dotenv.env['detaildebug'] ?? 'false');
+  
   @override
   void initState() {
     super.initState();
@@ -24,17 +33,14 @@ class _FinPlanSplashPageState extends State<FinPlanSplashPage> {
   }
 
   checkLogin(){
-    return SalesforceAuthService.getFromFile(key: 'access_token');
-  }
-
-  checkLogin2(){
     return SalesforceAuthService.checkIfAlreadyLoggedIn();
   }
 
   @override
   Widget build(BuildContext context) {
+    log.d('Hi, here!');
     return FutureBuilder<String?>(
-      future: checkLogin2(),
+      future: checkLogin(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
@@ -43,7 +49,7 @@ class _FinPlanSplashPageState extends State<FinPlanSplashPage> {
           return Center(child: Text('Error: ${snapshot.error}'));
         } 
         else {
-          Logger().d('Inside build method of splash page, the value of token is ${snapshot.data}');
+          log.d('Inside build method of splash page, the value of token is ${snapshot.data}');
           // final bool isLoggedIn = (snapshot.data != null && snapshot.data != '') ? true : false;
           // if (isLoggedIn) {
           if (snapshot.data != null && snapshot.data != ''){

@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 import 'package:expenso_app/screens/app_home/finplan__app_home_page.dart';
+import 'package:expenso_app/util/finplan__constants.dart';
 import 'package:expenso_app/util/finplan__salesforce_util_oauth2.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
@@ -15,6 +16,11 @@ class FinPlanLoginPage extends StatefulWidget {
 
 class FinPlanLoginPageState extends State<FinPlanLoginPage> {
 
+  // generic variables
+  static final Logger log = Logger();
+  static final bool debug = FinPlanConstant.DEBUG;
+  static final bool detaildebug = FinPlanConstant.DETAILED_DEBUG;
+  
   // bool isLoading = false;
 
   @override
@@ -33,13 +39,13 @@ class FinPlanLoginPageState extends State<FinPlanLoginPage> {
               child: Text('Login With Salesforce'),
               onPressed: () async {
                 BuildContext currentContext = context;
-                Logger().d('Token call not started yet!');
+                log.d('Token call not started yet!');
                 
                 // isLoading = true;
                 final token = await SalesforceAuthService.authenticate(context);
                 // isLoading = false;
           
-                Logger().d('Token is $token');
+                log.d('Token is $token');
                 if (token != null) {
                   Navigator.push(
                     currentContext,
@@ -49,7 +55,7 @@ class FinPlanLoginPageState extends State<FinPlanLoginPage> {
                   );
                 } else {
                   // Send to Login
-                  Logger().d('Error');
+                  log.d('Error');
                   Navigator.push(
                     currentContext,
                     MaterialPageRoute(

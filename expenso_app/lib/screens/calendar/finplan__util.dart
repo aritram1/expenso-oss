@@ -1,8 +1,14 @@
 // ignore_for_file: constant_identifier_names
 import 'package:expenso_app/db/services/finplan__DBInitializer.dart';
+import 'package:expenso_app/util/finplan__constants.dart';
 import 'package:logger/logger.dart';
 
 class FinPlanCalendarUtil {
+
+  // generic variables
+  static final Logger log = log;
+  static final bool debug = FinPlanConstant.DEBUG;
+  static final bool detaildebug = FinPlanConstant.DETAILED_DEBUG;
   
   // A function to get the list of tasks
   Future<Map<String, dynamic>> getFutureData({String? day}) async {
@@ -26,7 +32,7 @@ class FinPlanCalendarUtil {
 
     // List<Map<String, Object>> tasksAsObject = tasks.map((task) => task as Map<String, Object>).toList();
     for(Map<String, Object?> each in tasks){
-      Logger().d('Each Task => ${each.toString}');
+      log.d('Each Task => ${each.toString}');
       var dbTask = {
         'id' : each['id'] ?? 9999,
         'name' : each['name'] ?? 'DEFAULT_NAME',
@@ -39,7 +45,7 @@ class FinPlanCalendarUtil {
       };
       data['data']?.add(dbTask);
     }
-    Logger().d('La la Data=> ${data['data']}');
+    log.d('La la Data=> ${data['data']}');
     return data;
   }
 

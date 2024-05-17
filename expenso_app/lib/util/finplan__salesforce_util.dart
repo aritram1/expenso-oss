@@ -236,7 +236,7 @@ class SalesforceUtil{
       if(accessToken == '' || instanceUrl == ''){
         // Log an error
         // if(detaildebug) log.d('Response code other than 200 detected : ${resp.body}');
-        loginResponse['error'] = 'Some error occurred!';
+        loginResponse['error'] = 'Token not found in file';
       }
       // responseMap.add('data') = response.body;
     }

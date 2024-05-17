@@ -10,9 +10,13 @@ import 'package:logger/logger.dart';
 
 class FinPlanMessagesUtil {
 
-  static Logger log = Logger();
+  // generic variables
+  static final Logger log = Logger();
+  // static final bool debug = FinPlanConstant.DEBUG;
+  // static final bool detaildebug = FinPlanConstant.DETAILED_DEBUG;
   static bool debug = bool.parse(dotenv.env['debug'] ?? 'false');
   static bool detaildebug = bool.parse(dotenv.env['detaildebug'] ?? 'false');
+  
   static String customEndpointForDeleteAllMessagesAndTransactions = dotenv.env['customEndpointForDeleteAllMessagesAndTransactions'] ?? '/services/apexrest/FinPlan/api/delete/*';
 
   // A function to get the list of tasks

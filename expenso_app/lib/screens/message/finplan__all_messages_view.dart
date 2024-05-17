@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
 import 'package:expenso_app/screens/message/finplan__util.dart';
+import 'package:expenso_app/util/finplan__constants.dart';
 import 'package:expenso_app/widgets/finplan__datepicker_panel.dart';
 import 'package:expenso_app/widgets/finplan__table.dart';
 import 'package:flutter/material.dart';
@@ -17,8 +18,12 @@ class FinPlanAllMessages extends StatefulWidget {
 class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
   // Declare the required state variables for this page
 
+  // generic variables
   static final Logger log = Logger();
-  DateTime selectedStartDate = DateTime.now().add(const Duration(days: -7));
+  static final bool debug = FinPlanConstant.DEBUG;
+  static final bool detaildebug = FinPlanConstant.DETAILED_DEBUG;
+  
+    DateTime selectedStartDate = DateTime.now().add(const Duration(days: -7));
   DateTime selectedEndDate = DateTime.now();
   static bool showDatePickerPanel = false;
   static late Future<List<Map<String, dynamic>>> data;
@@ -58,7 +63,7 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
                 // await Future.delayed(const Duration(seconds: 3));
                 
                 var result = await FinPlanMessagesUtil.syncMessages(); // Call the method now
-                Logger().d('result is=> $result');
+                log.d('result is=> $result');
                 
                 setState(() {
                   isLoading = false;

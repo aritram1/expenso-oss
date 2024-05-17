@@ -1,5 +1,6 @@
 // ignore_for_file: must_be_immutable
 
+import 'package:expenso_app/util/finplan__constants.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
@@ -10,6 +11,11 @@ class FinPlanCreditAccountCard extends StatelessWidget {
     required this.data,
     required this.onCardSelected,
   });
+
+  // generic variables
+  static final Logger log = Logger();
+  static final bool debug = FinPlanConstant.DEBUG;
+  static final bool detaildebug = FinPlanConstant.DETAILED_DEBUG;
 
   final Map<String, dynamic> data;
   final Function onCardSelected;
@@ -38,7 +44,7 @@ class FinPlanCreditAccountCard extends StatelessWidget {
     double ccAvlLimit = data['FinPlan__CC_Available_Limit__c'] ?? 0;
     double ccSpentAmount = ccMaxLimit - ccAvlLimit;
     int ccBillingCycleDate = int.parse(data['FinPlan__CC_Billing_Cycle_Date__c'] ?? '0');
-    Logger().d('hello!=> ${data['FinPlan__CC_Last_Bill_Paid_Date__c']}');
+    log.d('hello!=> ${data['FinPlan__CC_Last_Bill_Paid_Date__c']}');
     
     String ccBillDueDate = '';
     if(data['FinPlan__Bill_Due_Date__c'] != null){

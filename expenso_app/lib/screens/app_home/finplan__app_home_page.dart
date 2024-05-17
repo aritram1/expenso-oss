@@ -9,6 +9,7 @@ import 'package:expenso_app/screens/calendar/finplan__calendar_view.dart';
 import 'package:expenso_app/screens/message/finplan__all_messages_view.dart';
 import 'package:expenso_app/screens/transaction/finplan__transactions_all.dart';
 import 'package:expenso_app/util/expense_data_generator.dart';
+import 'package:expenso_app/util/finplan__constants.dart';
 import 'package:expenso_app/widgets/finplan__Tile.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
@@ -26,8 +27,12 @@ class FinPlanAppHomePage extends StatefulWidget {
 
 class _FinPlanAppHomePageState extends State<FinPlanAppHomePage> {
   
+  // generic variables
   static final Logger log = Logger();
-
+  static final bool debug = FinPlanConstant.DEBUG;
+  static final bool detaildebug = FinPlanConstant.DETAILED_DEBUG;
+  
+  // class variables
   static bool isLoggedIn = false;
   static String? accessToken;
 
@@ -84,10 +89,11 @@ class _FinPlanAppHomePageState extends State<FinPlanAppHomePage> {
 
   // testing
   getTokenFilecontent() async{
-    Logger().d('Inside getTokenFilecontent methodToken is getting saved as');
+    log.d('Inside getTokenFilecontent method');
     String? content = await SalesforceAuthService.getFromFile();
-    Logger().d('File content before the Home Page is loaded : $content');
+    log.d('File content before the Home Page is loaded : $content');
     accessToken = await SalesforceAuthService.getFromFile(key : 'access_token');
+    log.d('Access Token is $accessToken');
     isLoggedIn = accessToken != null;
   }
 
@@ -407,7 +413,7 @@ class _FinPlanAppHomePageState extends State<FinPlanAppHomePage> {
   void navigateTo(BuildContext context, Widget? widget) async {
     String contents = await SalesforceAuthService.getFromFile() ?? ''; // 'access_token') ?? 'Hello Hi there, no token yet!';
     String value = 'pyak pyak (you are not logged in yet)';
-    Logger().d('Inside navigate to method : $contents');
+    log.d('Inside navigate to method : $contents');
     if(contents != ''){
       final Map<String, dynamic> data = json.decode(contents);
       value = data['access_token'];

@@ -324,9 +324,9 @@ class FinPlanTableWidgetState extends State<FinPlanTableWidget> {
         result = compareNumeric(a[columnName], b[columnName]);
       }
       else if (columnIndex == constDateColumnId) {  // constDateColumnId = 2
-        Logger().d('columnIndex => $columnIndex');
-        Logger().d('a => $a');
-        Logger().d('b => $b');
+        log.d('columnIndex => $columnIndex');
+        log.d('a => $a');
+        log.d('b => $b');
 
         result = compareDates(a[columnName], b[columnName]);
       }
@@ -427,7 +427,7 @@ class FinPlanTableWidgetState extends State<FinPlanTableWidget> {
   }
 
   TextStyle getTextStyle(String? headerName, dynamic row) { 
-    Logger().d('row= $row');
+    log.d('row= $row');
     String txnType = row['Type'];// credit or debit
     Color color = Colors.black;
     if(headerName == 'Amount'){
@@ -475,7 +475,7 @@ class FinPlanTableWidgetState extends State<FinPlanTableWidget> {
       String mm = yyyymmdd.split('-')[1];
       String dd = yyyymmdd.split('-')[2];
       formattedCellData = '$dd/$mm/$yy';
-      Logger().d('formattedCellData=> $formattedCellData');
+      log.d('formattedCellData=> $formattedCellData');
     }
     /////////////////////////// For DateTime type columns ////////////////////////////////////
     else if(dateTimeColumns.contains(columnName)){
