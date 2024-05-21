@@ -6,7 +6,6 @@ import 'package:expenso_app/widgets/finplan__datepicker_panel.dart';
 import 'package:expenso_app/widgets/finplan__pill.dart';
 import 'package:expenso_app/widgets/finplan__table.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 
@@ -21,14 +20,13 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
   // Declare the required state variables for this page
 
   static final Logger log = Logger();
-  static DateTime selectedStartDate =
-      DateTime.now().add(const Duration(days: -7));
+  static DateTime selectedStartDate =DateTime.now().add(const Duration(days: -7));
   static DateTime selectedEndDate = DateTime.now();
   static bool showDatePickerPanel = false;
-  static List<Map<String, dynamic>> tableData = [];
+  List<Map<String, dynamic>> tableData = [];
   static List<Map<String, dynamic>> allData = [];
   static Set<String> availableTypes = {};
-  static Map<String, List<Map<String, dynamic>>> filteredDataMap = {};
+  Map<String, List<Map<String, dynamic>>> filteredDataMap = {};
 
   static bool isLoading = false;
 
@@ -64,14 +62,13 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
 
               BuildContext currentContext = context;
               // Get an alert dialog as confirmation box
-              bool shouldProceed =
-                  await showConfirmationBox(currentContext, 'Sync');
+              bool shouldProceed = await showConfirmationBox(currentContext, 'Sync');
               if (shouldProceed) {
                 setState(() {
                   isLoading = true;
                 });
 
-                // await Future.delayed(const Duration(seconds: 3));
+                // await Future.delayed(const Duration(seconds: 1)); // delay for 1 sec
 
                 var result = await FinPlanMessagesUtil.syncMessages(); // Call the method now
                 Logger().d('result is=> $result');
@@ -121,11 +118,9 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
                       }
                       // Case 2 : Async job received an error
                       else if (snapshot.hasError) {
-                        log.e(
-                            'Error loading data => ${snapshot.error.toString()}');
+                        log.e('Error loading data => ${snapshot.error.toString()}');
                         return Center(
-                          child: Text(
-                              'Error loading data => ${snapshot.error.toString()}'),
+                          child: Text('Error loading data => ${snapshot.error.toString()}'),
                         );
                       }
                       // Case 3 : Async job succeeds but returns no data
@@ -136,7 +131,7 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
                       }
                       // Case 4 : Async job succeeds with data
                       else {
-                        // ASsign the variables after the data is received from callout
+                        // Assign the variables after the data is received from callout
                         allData = snapshot.data!;
                         tableData = snapshot.data!;
                         filteredDataMap = generateDataMap(snapshot.data!);                       
@@ -150,14 +145,14 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
                                   types: getAvailableTypes(), 
                                   onPillSelected: (String pillName) {
                                     Logger().d('Pill name is $pillName');
-                                    // tableData = filterData(allData, pillName);
-                                    // setState(() {
-                                    //   tableData = filterData(allData, pillName);
-                                    //   // processAndStoreMessagesData(allData);// , selectedPillName: pillName);
-                                    //   // tableData = filteredDataMap[pillName] ?? [];
-                                    //   Logger().d('Inside setstate tableData is => $tableData');
-                                    //   Logger().d('Inside setstate  Pill name is $pillName');
-                                    // });
+                                    // tableData = filteredDataMap[pillName] ?? []; // new
+                                    setState(() {
+                                      // new tbc
+                                      // tableData = filterData(allData, pillName);
+                                      tableData = filterData(snapshot.data!, pillName);
+                                      Logger().d('Inside setstate tableData is => $tableData');
+                                      Logger().d('Within setstate method of Pill, the table data is $tableData');
+                                    });
                                   }
                                 )
                               ),
@@ -216,10 +211,6 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
   Future<List<Map<String, dynamic>>> getAllTransactionMessages(DateTime startDate, DateTime endDate) async {
     try {
       
-      // setState(() {
-        
-      // });
-
       allData = await FinPlanMessagesUtil.getAllTransactionMessages(startDate: startDate, endDate: endDate);
       Logger().d('LOL allData is: $allData');
       filteredDataMap = generateDataMap(allData);
