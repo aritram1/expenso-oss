@@ -26,13 +26,22 @@ class FinPlanMessageDetail extends StatefulWidget {
 // State class for `FinPlanMessageDetail`
 class _FinPlanMessageDetailState extends State<FinPlanMessageDetail> {
 
-  late Map<String, dynamic> data;
+  
   static final Logger log = Logger();
 
+  // late Map<String, dynamic> data;
+  // @override void initState() {
+  //   super.initState();
+  //   log.d(' Value=>${jsonDecode(widget.sms)}');
+  //   data = jsonDecode(widget.sms);
+  //   // data = Map.castFrom(jsonDecode(jsonEncode(widget.sms))) as Map<String, dynamic> ; // String -> dynamic -> Map<String, dynamic>
+  // }
+
+  late String data;
   @override void initState() {
     super.initState();
-    log.d(' Value=>${jsonDecode(widget.sms)}');
-    data = jsonDecode(widget.sms);
+    log.d('Value=> ${widget.sms}');
+    data = widget.sms;
     // data = Map.castFrom(jsonDecode(jsonEncode(widget.sms))) as Map<String, dynamic> ; // String -> dynamic -> Map<String, dynamic>
   }
 

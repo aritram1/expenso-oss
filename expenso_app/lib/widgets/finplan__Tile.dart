@@ -61,7 +61,7 @@ class _FinPlanTileState extends State<FinPlanTile> {
       padding: EdgeInsets.all(0.0),
       child: GestureDetector(
         onTap: (){
-          log.d('Callback is invoked for the widget!');
+          log.d('Callback is invoked for the FinPlanTile widget!');
           widget.onCallBack();
         },
         child: Container(

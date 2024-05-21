@@ -1,4 +1,5 @@
 // ignore_for_file: prefer_const_constructors
+import 'package:expenso_app/screens/message/finplan__message_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:intl/intl.dart';
@@ -40,6 +41,7 @@ class FinPlanTableWidget extends StatefulWidget {
   final String defaultSortcolumnName; // e.g. Name
   final String tableButtonName; // This button applies a common action for all selected records
   final bool showSelectionBoxes; // records are selected with this checkbox
+  final bool showNavigation; // this helps to navigate to row specific pages
   
   const FinPlanTableWidget({
     Key? key,
@@ -51,6 +53,8 @@ class FinPlanTableWidget extends StatefulWidget {
     required this.tableButtonName,
     this.noRecordFoundMessage = 'Default Message for no records!',
     this.showSelectionBoxes = true,
+    this.showNavigation = false,
+
   }) : super(key: key);
 
   @override
@@ -136,6 +140,7 @@ class FinPlanTableWidgetState extends State<FinPlanTableWidget> {
 
   @override
   Widget build(BuildContext context) {
+    BuildContext currentContext = context;
     return Stack(
       children: [
         SingleChildScrollView( 
@@ -153,6 +158,7 @@ class FinPlanTableWidgetState extends State<FinPlanTableWidget> {
                       sortAscending: _sortAscending,
                       columns: _generateColumns(),
                       rows: _generateRows(),
+                      // rows: _generateRows(currentContext),
                     ),
                   ],
                 ),
@@ -232,6 +238,7 @@ class FinPlanTableWidgetState extends State<FinPlanTableWidget> {
     });
   }
 
+  // _generateRows(BuildContext context) {
   _generateRows() {
     return widget.data.asMap().entries.map((entry) {
       final String rowIndex = entry.value['Id'];
@@ -242,6 +249,7 @@ class FinPlanTableWidgetState extends State<FinPlanTableWidget> {
         onSelectChanged: (selected) {
           handleRowSelection(selected, rowIndex);
         },
+        // onLongPress: navigateToMessage(context, rowIndex),
         cells: List.generate(widget.header.length, (index) {
 
           String headerLabel = widget.header[index]['label']!;
@@ -299,16 +307,16 @@ class FinPlanTableWidgetState extends State<FinPlanTableWidget> {
     }
 
     sortColumnIndex = columnIndex;
-    if (detaildebug){
-      log.d('I am here sortColumnIndex and sortascending values => $sortColumnIndex $_sortAscending');
-    }
+
+    if (detaildebug) log.d('I am here sortColumnIndex and sortascending values => $sortColumnIndex $_sortAscending');
+    
     widget.data.sort((a, b) {
 
       int result = 0;
 
       if(detaildebug){
-        log.d('a => $a');
-        log.d('b => $b');
+        // log.d('a => $a');
+        // log.d('b => $b');
       }
       String columnName = widget.header[sortColumnIndex]['label']!;
 
@@ -324,9 +332,9 @@ class FinPlanTableWidgetState extends State<FinPlanTableWidget> {
         result = compareNumeric(a[columnName], b[columnName]);
       }
       else if (columnIndex == constDateColumnId) {  // constDateColumnId = 2
-        Logger().d('columnIndex => $columnIndex');
-        Logger().d('a => $a');
-        Logger().d('b => $b');
+        // Logger().d('columnIndex => $columnIndex');
+        // Logger().d('a => $a');
+        // Logger().d('b => $b');
 
         result = compareDates(a[columnName], b[columnName]);
       }
@@ -427,7 +435,7 @@ class FinPlanTableWidgetState extends State<FinPlanTableWidget> {
   }
 
   TextStyle getTextStyle(String? headerName, dynamic row) { 
-    Logger().d('row= $row');
+    // Logger().d('row= $row');
     String txnType = row['Type'];// credit or debit
     Color color = Colors.black;
     if(headerName == 'Amount'){
@@ -475,7 +483,7 @@ class FinPlanTableWidgetState extends State<FinPlanTableWidget> {
       String mm = yyyymmdd.split('-')[1];
       String dd = yyyymmdd.split('-')[2];
       formattedCellData = '$dd/$mm/$yy';
-      Logger().d('formattedCellData=> $formattedCellData');
+      // Logger().d('formattedCellData=> $formattedCellData');
     }
     /////////////////////////// For DateTime type columns ////////////////////////////////////
     else if(dateTimeColumns.contains(columnName)){
@@ -560,6 +568,14 @@ class FinPlanTableWidgetState extends State<FinPlanTableWidget> {
       // Reset the flag when the approval process is completed
       isLoading = false;
     });
+  }
+  
+  navigateToMessage(BuildContext context, String smsId) {
+    Logger().d('Inside navigate method of sms detail with id : $smsId');
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => FinPlanMessageDetail(sms: smsId, onCallBack: (){},),
+    ));
   }
   
 }

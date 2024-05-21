@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 class FinPlanPill extends StatelessWidget {
   const FinPlanPill({
     super.key,
-    required this.expenseTypes,
+    required this.types,
     required this.onPillSelected,
   });
 
-  final Set<String> expenseTypes;
+  final Set<String> types;
   final Function onPillSelected;
 
   @override
@@ -24,7 +24,7 @@ class FinPlanPill extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children:[
-          for (String eachType in expenseTypes)
+          for (String eachType in types)
             Padding(
               padding: const EdgeInsets.all(4.0),
               child: ElevatedButton(
