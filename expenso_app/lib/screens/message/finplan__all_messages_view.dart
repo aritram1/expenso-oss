@@ -4,6 +4,7 @@ import 'package:expenso_app/screens/message/finplan__util.dart';
 import 'package:expenso_app/util/finplan__exception.dart';
 import 'package:expenso_app/widgets/finplan__datepicker_panel.dart';
 import 'package:expenso_app/widgets/finplan__pill.dart';
+import 'package:expenso_app/widgets/finplan__pill_enhanced.dart';
 import 'package:expenso_app/widgets/finplan__table.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -137,12 +138,32 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
                         filteredDataMap = generateDataMap(snapshot.data!);                       
                         return Column(
                           children: [
+                            // Padding(
+                            //   padding: const EdgeInsets.all(8.0),
+                            //   child:SingleChildScrollView(
+                            //     scrollDirection: Axis.horizontal,
+                            //     child : FinPlanPill(
+                            //       types: getAvailableTypes(), 
+                            //       onPillSelected: (String pillName) {
+                            //         Logger().d('Pill name is $pillName');
+                            //         // tableData = filteredDataMap[pillName] ?? []; // new
+                            //         setState(() {
+                            //           // new tbc
+                            //           // tableData = filterData(allData, pillName);
+                            //           tableData = filterData(snapshot.data!, pillName);
+                            //           Logger().d('Inside setstate tableData is => $tableData');
+                            //           Logger().d('Within setstate method of Pill, the table data is $tableData');
+                            //         });
+                            //       }
+                            //     )
+                            //   ),
+                            // ),
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child:SingleChildScrollView(
                                 scrollDirection: Axis.horizontal,
-                                child : FinPlanPill(
-                                  types: getAvailableTypes(), 
+                                child : FinPlanEnhancedPill(
+                                  data: allData, 
                                   onPillSelected: (String pillName) {
                                     Logger().d('Pill name is $pillName');
                                     // tableData = filteredDataMap[pillName] ?? []; // new
