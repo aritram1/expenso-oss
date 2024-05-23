@@ -396,15 +396,19 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
     for(Map<String, dynamic> each in allData){
       Logger().d('each[beneficiaryType] is ${each['beneficiaryType']}');
       
+      // To show - back all records without any filter
+      if(pillName == 'All'){
+        temp.add(each);
+      }
       // For Misc / Other type entries
-      if(pillName == 'Others' && each['BeneficiaryType'] == ''){
+      else if(pillName == 'Others' && each['BeneficiaryType'] == ''){
         temp.add(each);
       }
       // For rest entries
       else if(each['BeneficiaryType'] == pillName){
         temp.add(each);
       }
-      
+
     }
     Logger().d('Inside Filter data method, return is=> $temp');
     return temp;
