@@ -42,13 +42,21 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
   @override
   void initState() {
     super.initState();
-    // allData = getAllTransactionMessages(selectedStartDate,selectedEndDate); // generate the data for the first time
+    initMessages();
+  }
+
+  void initMessages() async {
+    allData = await getAllTransactionMessages(selectedStartDate, selectedEndDate);
+    tableData = allData;
+    filteredDataMap = generateDataMap(allData);
+    setState(() {}); // To force rebuild the state so that dependent widgets gets rebuilt
   }
 
   Future<List<Map<String, dynamic>>> getAllMessages() async {
     return getAllTransactionMessages(selectedStartDate, selectedEndDate);
   }
 
+  /*
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -170,7 +178,7 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
                                     setState(() {
                                       // new tbc
                                       // tableData = filterData(allData, pillName);
-                                      tableData = filterData(snapshot.data!, pillName);
+                                      tableData = filterData(allData, pillName);
                                       Logger().d('Inside setstate tableData is => $tableData');
                                       Logger().d('Within setstate method of Pill, the table data is $tableData');
                                     });
@@ -202,7 +210,97 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
               ],
             ),
     );
+  }*/
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Messages'),
+        actions: [
+          GestureDetector(
+            onTap: () async {
+              if (isLoading) {
+                return; // Early return in case the page is already loading
+              }
+              BuildContext currentContext = context;
+              // Get an alert dialog as a confirmation box
+              bool shouldProceed = await showConfirmationBox(currentContext, 'Sync');
+              if (shouldProceed) {
+                setState(() {
+                  isLoading = true;
+                });
+
+                var result = await FinPlanMessagesUtil.syncMessages(); // Call the method now
+                Logger().d('result is=> $result');
+
+                // TB checked if required
+                // After sync, reload data based on current date selections
+                // var result = await handleDateRangeSelection(selectedStartDate, selectedEndDate);
+
+                setState(() {
+                  isLoading = false;
+                });
+              }
+            },
+            child: Icon(Icons.refresh),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
+      body: isLoading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Column(children: [
+                    FinPlanDatepickerPanel(
+                      onDateRangeSelected: handleDateRangeSelection,
+                    ),
+                  ]),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: FinPlanEnhancedPill(
+                      data: allData,
+                      onPillSelected: onPillSelected,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: FinPlanTableWidget(
+                    header: const [
+                      {'label': 'Paid To', 'type': 'String'},
+                      {'label': 'Amount', 'type': 'double'},
+                      {'label': 'Date', 'type': 'date'},
+                    ],
+                    defaultSortcolumnName: 'Date',
+                    tableButtonName: 'Approve',
+                    noRecordFoundMessage: 'Nothing to approve',
+                    columnWidths: const [0.3, 0.2, 0.2],
+                    data: tableData,
+                    onLoadComplete: onLoadComplete,
+                  ),
+                ),
+              ],
+            ),
+    );
   }
+
+  void onPillSelected(String pillName) {
+    Logger().d('Pill name is $pillName');
+    setState(() {
+      tableData = filterData(pillName);
+      Logger().d('Inside setState data is=> $tableData');
+    });
+  }
+
+
 
   // Util methods for this widget
   Icon getIcon(dynamic row) {
@@ -263,11 +361,25 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
   // method to handle date range click
   void handleDateRangeSelection(DateTime startDate, DateTime endDate) async {
     log.d('In callback startDate $startDate, endDate $endDate');
+    // setState(() {
+    //   selectedStartDate = startDate;
+    //   selectedEndDate = endDate;
+    //   getAllTransactionMessages(startDate, endDate);
+    // });
+
     setState(() {
+      isLoading = true; // Show loading indicator while fetching data
       selectedStartDate = startDate;
       selectedEndDate = endDate;
-      getAllTransactionMessages(startDate, endDate);
     });
+    allData = await getAllTransactionMessages(selectedStartDate, selectedEndDate);
+    tableData = allData;
+    filteredDataMap = generateDataMap(allData);
+    
+    setState(() {
+      isLoading = false; // Hide loading indicator once data is fetched
+    });
+
   }
   
   Set<String> getAvailableTypes() {
@@ -276,14 +388,25 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
   }
   
   // Filtered data
-  List<Map<String, dynamic>> filterData(List<Map<String, dynamic>> data, String pillName) {
+  List<Map<String, dynamic>> filterData(String pillName) {
+    Logger().d('Inside filterData pillname is=> $pillName');
+    Logger().d('Inside filterData data is=> $allData');
     List<Map<String, dynamic>> temp = [];
-    for(Map<String, dynamic> each in data){
-      if(each['beneficiaryType'] == pillName){
+
+    for(Map<String, dynamic> each in allData){
+      Logger().d('each[beneficiaryType] is ${each['beneficiaryType']}');
+      
+      // For Misc / Other type entries
+      if(pillName == 'Others' && each['BeneficiaryType'] == ''){
         temp.add(each);
       }
+      // For rest entries
+      else if(each['BeneficiaryType'] == pillName){
+        temp.add(each);
+      }
+      
     }
-    Logger().d('Inside Filter dat amethod, return is=> $temp');
+    Logger().d('Inside Filter data method, return is=> $temp');
     return temp;
   }
 }
