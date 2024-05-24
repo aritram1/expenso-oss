@@ -46,10 +46,19 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
   }
 
   void initMessages() async {
+    
+    setState(() {
+      isLoading = true;
+    });
+    
     allData = await getAllTransactionMessages(selectedStartDate, selectedEndDate);
     tableData = allData;
     filteredDataMap = generateDataMap(allData);
-    setState(() {}); // To force rebuild the state so that dependent widgets gets rebuilt
+    
+    // To force rebuild the state so that dependent widgets gets rebuilt
+    setState(() {
+      isLoading = false;
+    });
   }
 
   Future<List<Map<String, dynamic>>> getAllMessages() async {
@@ -245,7 +254,7 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
             },
             child: Icon(Icons.refresh),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 12),
         ],
       ),
       body: isLoading
@@ -281,7 +290,7 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
                     ],
                     defaultSortcolumnName: 'Date',
                     tableButtonName: 'Approve',
-                    noRecordFoundMessage: 'Nothing to approve',
+                    noRecordFoundMessage: 'Nothing to show',
                     columnWidths: const [0.3, 0.2, 0.2],
                     data: tableData,
                     onLoadComplete: onLoadComplete,
@@ -395,6 +404,20 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
 
     for(Map<String, dynamic> each in allData){
       Logger().d('each[beneficiaryType] is ${each['beneficiaryType']}');
+
+      // switch (pillName) {
+      //   case 'All':
+      //     temp.add(each);
+      //     break;
+      //   case 'Others':
+      //     if(each['BeneficiaryType'] == ''){
+      //       temp.add(each);
+      //     }
+      //     break;          
+      //   default:
+      //     temp.add(each);
+      //     break;
+      // }
       
       // To show - back all records without any filter
       if(pillName == 'All'){
@@ -402,6 +425,12 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
       }
       // For Misc / Other type entries
       else if(pillName == 'Others' && each['BeneficiaryType'] == ''){
+        temp.add(each);
+      }
+      else if(pillName == 'Credit' && each['Type'] == 'credit'){
+        temp.add(each);
+      }
+      else if(pillName == 'Debit' && each['Type'] == 'debit'){
         temp.add(each);
       }
       // For rest entries

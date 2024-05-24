@@ -132,7 +132,7 @@ class FinPlanAllTransactionsState extends State<FinPlanAllTransactions> {
                     ],
                     defaultSortcolumnName: 'Date',
                     tableButtonName: 'Approve',
-                    noRecordFoundMessage: 'Nothing to approve',
+                    noRecordFoundMessage: 'Nothing to show',
                     columnWidths: const [0.3, 0.2, 0.2],
                     data: snapshot.data!,
                     onLoadComplete: onLoadComplete,

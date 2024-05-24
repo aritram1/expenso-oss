@@ -107,6 +107,15 @@ class FinPlanEnhancedPill extends StatelessWidget {
       case 'Travel':
         icon = const Icon(Icons.travel_explore_rounded);
         break;
+      case 'All':
+        icon = const Icon(Icons.done_all_sharp);
+        break;
+      case 'Credit':
+        icon = const Icon(Icons.arrow_downward_sharp);
+        break;
+      case 'Debit':
+        icon = const Icon(Icons.arrow_outward_outlined);
+        break;
       default:
         break;
     }
@@ -120,17 +129,50 @@ class FinPlanEnhancedPill extends StatelessWidget {
   
   List<Widget> generatePills(List<String> allTypes) {
     List<Widget> allPills = [];
-    allPills.add(Padding(
-      padding: const EdgeInsets.all(4.0),
-      child: ElevatedButton.icon(
-        icon: const Icon(Icons.done_all_sharp), // Icon inside the button
-        label: const Text('All'), // Text inside the button
-        onPressed: () {
-          onPillSelected('All');
-        },
+    
+    // Add the `All` button
+    allPills.add(
+      Padding(
+        padding: const EdgeInsets.all(4.0),
+        child: ElevatedButton.icon(
+          icon: getPillIcon('All'), // Icon inside the button
+          label: const Text('All'), // Text inside the button
+          onPressed: () {
+            onPillSelected('All');
+          },
+        ),
       ),
-    ),
     );
+
+    // Add the `Debit` button
+    allPills.add(
+      Padding(
+        padding: const EdgeInsets.all(4.0),
+        child: ElevatedButton.icon(
+          icon: getPillIcon('Credit'), // Icon inside the button
+          label: const Text('Credit'), // Text inside the button
+          onPressed: () {
+            onPillSelected('Credit');
+          },
+        ),
+      ),
+    );
+
+    // Add the `Credit` pill
+    allPills.add(
+      Padding(
+        padding: const EdgeInsets.all(4.0),
+        child: ElevatedButton.icon(
+          icon: getPillIcon('Debit'), // Icon inside the button
+          label: const Text('Debit'), // Text inside the button
+          onPressed: () {
+            onPillSelected('Debit');
+          },
+        ),
+      ),
+    );
+
+
     for (String eachType in allTypes){
       Widget each = Padding(
         padding: const EdgeInsets.all(4.0),
