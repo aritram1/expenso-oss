@@ -294,6 +294,8 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
                     columnWidths: const [0.3, 0.2, 0.2],
                     data: tableData,
                     onLoadComplete: onLoadComplete,
+                    showNavigation: true,
+                    showSelectionBoxes: true,
                   ),
                 ),
               ],

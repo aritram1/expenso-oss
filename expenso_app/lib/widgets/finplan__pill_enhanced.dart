@@ -1,5 +1,6 @@
-// ignore_for_file: must_be_immutable
+// ignore_for_file: must_be_immutable, no_leading_underscores_for_local_identifiers
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 
@@ -20,7 +21,7 @@ class FinPlanEnhancedPill extends StatelessWidget {
     dataMapByTypes = generateTypesFromData();
     List<String> allTypes = dataMapByTypes.keys.toList();
     allTypes.sort();
-
+    
     return Container(
       decoration: BoxDecoration(
         //color: Colors.blue.shade50, // Set your desired background color
@@ -41,11 +42,18 @@ class FinPlanEnhancedPill extends StatelessWidget {
     
     for (Map<String, dynamic> each in data) { // The `data` is the record list that has been passed to this widget
 
-      // if type is blank or null then set it to `Others`
-      String type = (each['BeneficiaryType'] == null || each['BeneficiaryType'] == '') ? 'Others' : each['BeneficiaryType'];
-      List<Map<String, dynamic>> existing = fMap[type] ?? [];
+      // if beneficiary-type is blank or null then set it to `Others` and classify the `data` by beneficiary types
+      String beneficiaryType = (each['BeneficiaryType']?.isEmpty) ? 'Others' : each['BeneficiaryType'];
+      List<Map<String, dynamic>> existing = fMap[beneficiaryType] ?? [];
       existing.add(each);
-      fMap[type] = existing;
+      fMap[beneficiaryType] = existing;
+
+      // along with beneficiary types, we will also be setting the transaction types
+      // i.e. Credit or Debit and classify the `data` by trasnaction types
+      String type = each['Type'];
+      List<Map<String, dynamic>> existingRecords = fMap[type] ?? [];
+      existing.add(each);
+      fMap[type] = existingRecords;
 
     }
     Logger().d('Currently the map in fMap => $fMap');
@@ -53,133 +61,190 @@ class FinPlanEnhancedPill extends StatelessWidget {
   }
   
   String generatePillLabel(String eachType) {
-    int count = dataMapByTypes[eachType]?.length ?? 0;
+    
     String type = eachType;
-    String label = '$type ($count)';
+    String label;
+    int count = 0;
+    
+    // for all the types
+    if(eachType == 'All'){
+      count = data.length;
+    }
+    // only for credit type
+    else if(eachType == 'Credit'){
+      for(var each in data){
+        if(each['Type'] == 'Credit') {
+          count++;
+        }
+      }
+    }
+    // only for debit type
+    else if(eachType == 'Debit'){
+      for(var each in data){
+        if(each['Type'] == 'Debit') {
+          count++;
+        }
+      }
+    }
+    // For all other types
+    else{
+      count = dataMapByTypes[eachType]?.length ?? 0;
+    }
+
+    label = '$type ($count)';
     return label;
   }
 
-  Icon getPillIcon(String type) {
-    Icon icon = const Icon(Icons.miscellaneous_services);
+  IconData getPillIcon(String type) {
+    IconData iconData = Icons.miscellaneous_services;
     switch (type) {
       case 'Aquarium':
-        icon = const Icon(Icons.water);
+        iconData = Icons.water;
         break;
       case 'Bills':
-        icon = const Icon(Icons.receipt);
+        iconData = Icons.receipt;
         break;
       case 'Broker':
-        icon = const Icon(Icons.my_library_books_outlined);
+        iconData = Icons.my_library_books_outlined;
         break;
       case 'Dress':
-        icon = const Icon(Icons.accessibility_rounded);
+        iconData = Icons.accessibility_rounded;
         break;
       case 'Entertainment':
-        icon = const Icon(Icons.movie_creation_outlined);
+        iconData = Icons.movie_creation_outlined;
         break;
       case 'Food and Drinks':
-        icon = const Icon(Icons.restaurant);
+        iconData = Icons.restaurant;
         break;
       case 'Fuel':
-        icon = const Icon(Icons.oil_barrel_outlined);
+        iconData = Icons.oil_barrel_outlined;
         break;
       case 'Grocery':
-        icon = const Icon(Icons.local_grocery_store);
+        iconData = Icons.local_grocery_store;
         break;
       case 'Investment':
-        icon = const Icon(Icons.inventory_2_outlined);
+        iconData = Icons.inventory_2_outlined;
         break;
       case 'Medicine':
-        icon = const Icon(Icons.medication_liquid);
+        iconData = Icons.medication_liquid;
         break;
       case 'OTT':
-        icon = const Icon(Icons.tv);
+        iconData = Icons.tv;
         break;
       case 'Salary':
-        icon = const Icon(Icons.attach_money);
+        iconData = Icons.attach_money;
         break;
       case 'Shopping':
-        icon = const Icon(Icons.shopping_bag_outlined);
+        iconData = Icons.shopping_bag_outlined;
         break;
       case 'Transfer':
-        icon = const Icon(Icons.bookmark_rounded);
+        iconData = Icons.bookmark_rounded;
         break;
       case 'Travel':
-        icon = const Icon(Icons.travel_explore_rounded);
+        iconData = Icons.travel_explore_rounded;
         break;
       case 'All':
-        icon = const Icon(Icons.done_all_sharp);
+        iconData = Icons.done_all_sharp;
         break;
       case 'Credit':
-        icon = const Icon(Icons.arrow_downward_sharp);
+        iconData = Icons.arrow_downward_sharp;
         break;
       case 'Debit':
-        icon = const Icon(Icons.arrow_outward_outlined);
+        iconData = Icons.arrow_outward_outlined;
         break;
       default:
         break;
     }
-    return icon;
+    return iconData;
   }
 
   String getPillLabel(String eachType) {
+
     int count = dataMapByTypes[eachType]?.length ?? 0;
+    
+    // for all the types
+    if(eachType == 'All'){
+      count = data.length;
+    }
+    // only for credit type
+    else if(eachType == 'Credit'){
+      for(var each in data){
+        if(each['Type'].toUpperCase() == 'CREDIT') {
+          count++;
+        }
+      }
+    }
+    // only for debit type
+    else if(eachType == 'Debit'){
+      for(var each in data){
+        if(each['Type'].toUpperCase() == 'DEBIT') {
+          count++;
+        }
+      }
+    }
+    // For all other types
+    else{
+      count = dataMapByTypes[eachType]?.length ?? 0;
+    }
+
     return count.toString();
   }
   
-  List<Widget> generatePills(List<String> allTypes) {
-    List<Widget> allPills = [];
+  List<Widget> generatePills(List<String> availableTypes) {
     
-    // Add the `All` button
-    allPills.add(
-      Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: ElevatedButton.icon(
-          icon: getPillIcon('All'), // Icon inside the button
-          label: const Text('All'), // Text inside the button
-          onPressed: () {
-            onPillSelected('All');
-          },
-        ),
-      ),
-    );
+    List<String> _allTypes = ['All', 'Credit', 'Debit', ...availableTypes]; // Add these three hardcoded values as well
+    
+    List<Widget> allPills = [];
+
+    // // Add the `All` button
+    // allPills.add(
+    //   Padding(
+    //     padding: const EdgeInsets.all(4.0),
+    //     child: ElevatedButton.icon(
+    //       icon: getPillIcon('All'), // Icon inside the button
+    //       label: const Text('All'), // Text inside the button
+    //       onPressed: () {
+    //         onPillSelected('All');
+    //       },
+    //     ),
+    //   ),
+    // );
 
     // Add the `Debit` button
-    allPills.add(
-      Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: ElevatedButton.icon(
-          icon: getPillIcon('Credit'), // Icon inside the button
-          label: const Text('Credit'), // Text inside the button
-          onPressed: () {
-            onPillSelected('Credit');
-          },
-        ),
-      ),
-    );
+    // allPills.add(
+    //   Padding(
+    //     padding: const EdgeInsets.all(4.0),
+    //     child: ElevatedButton.icon(
+    //       icon: getPillIcon('Credit'), // Icon inside the button
+    //       label: Text(getPillLabel('Credit')), // Text inside the button
+    //       onPressed: () {
+    //         onPillSelected('Credit');
+    //       },
+    //     ),
+    //   ),
+    // );
 
     // Add the `Credit` pill
-    allPills.add(
-      Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: ElevatedButton.icon(
-          icon: getPillIcon('Debit'), // Icon inside the button
-          label: const Text('Debit'), // Text inside the button
-          onPressed: () {
-            onPillSelected('Debit');
-          },
-        ),
-      ),
-    );
+    // allPills.add(
+    //   Padding(
+    //     padding: const EdgeInsets.all(4.0),
+    //     child: ElevatedButton.icon(
+    //       icon: getPillIcon('Debit'), // Icon inside the button
+    //       label: Text(getPillLabel('Debit')), // Text inside the button
+    //       onPressed: () {
+    //         onPillSelected('Debit');
+    //       },
+    //     ),
+    //   ),
+    // );
 
-
-    for (String eachType in allTypes){
+    for (String eachType in _allTypes){
       Widget each = Padding(
         padding: const EdgeInsets.all(4.0),
         child : 
         // ----------------------------------------------------
         ElevatedButton.icon(
-          icon: getPillIcon(eachType), // Icon inside the button
+          icon: Icon(getPillIcon(eachType)), // Icon inside the button
           label: Text(getPillLabel(eachType)), // Text inside the button
           onPressed: () {
             onPillSelected(eachType);
