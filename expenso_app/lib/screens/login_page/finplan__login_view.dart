@@ -15,7 +15,7 @@ class FinPlanLoginPage extends StatefulWidget {
 
 class FinPlanLoginPageState extends State<FinPlanLoginPage> {
 
-  // bool isLoading = false;
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +23,9 @@ class FinPlanLoginPageState extends State<FinPlanLoginPage> {
       appBar: AppBar(
         title: Text('Expenso'),
       ),
-      body: Center(
+      body: 
+      isLoading ? CircularProgressIndicator() 
+      : Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -35,11 +37,18 @@ class FinPlanLoginPageState extends State<FinPlanLoginPage> {
                 BuildContext currentContext = context;
                 Logger().d('Token call not started yet!');
                 
-                // isLoading = true;
+                setState(() {
+                  isLoading = true;
+                });
+
                 final token = await SalesforceAuthService.authenticate(context);
-                // isLoading = false;
+                
+                setState(() {
+                  isLoading = false;
+                });
           
                 Logger().d('Token is $token');
+
                 if (token != null) {
                   Navigator.push(
                     currentContext,

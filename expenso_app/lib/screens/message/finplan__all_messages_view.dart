@@ -52,11 +52,13 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
     });
     
     allData = await getAllTransactionMessages(selectedStartDate, selectedEndDate);
-    tableData = allData;
-    filteredDataMap = generateDataMap(allData);
-    
+    // tableData = allData;
+    // filteredDataMap = generateDataMap(allData);
+
     // To force rebuild the state so that dependent widgets gets rebuilt
     setState(() {
+      tableData = allData;
+      filteredDataMap = generateDataMap(allData);
       isLoading = false;
     });
   }
@@ -236,6 +238,8 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
               // Get an alert dialog as a confirmation box
               bool shouldProceed = await showConfirmationBox(currentContext, 'Sync');
               if (shouldProceed) {
+
+                // Set the loading indicator
                 setState(() {
                   isLoading = true;
                 });
@@ -247,9 +251,11 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
                 // After sync, reload data based on current date selections
                 // var result = await handleDateRangeSelection(selectedStartDate, selectedEndDate);
 
+                // Unset the loading indicator
                 setState(() {
                   isLoading = false;
                 });
+
               }
             },
             child: Icon(Icons.refresh),
@@ -257,49 +263,55 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
           const SizedBox(width: 12),
         ],
       ),
-      body: isLoading
-          ? Center(
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Column(
+              children: [
+                FinPlanDatepickerPanel(
+                  onDateRangeSelected: handleDateRangeSelection,
+                ),
+              ]
+            ),
+          ),
+          if(isLoading)
+            Center(
               child: CircularProgressIndicator(),
             )
-          : Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Column(children: [
-                    FinPlanDatepickerPanel(
-                      onDateRangeSelected: handleDateRangeSelection,
-                    ),
-                  ]),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: FinPlanEnhancedPill(
-                      data: allData,
-                      onPillSelected: onPillSelected,
-                    ),
+          else
+            ...<Widget>[
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: FinPlanEnhancedPill(
+                    data: allData,
+                    onPillSelected: onPillSelected,
                   ),
                 ),
-                Expanded(
-                  child: FinPlanTableWidget(
-                    header: const [
-                      {'label': 'Paid To', 'type': 'String'},
-                      {'label': 'Amount', 'type': 'double'},
-                      {'label': 'Date', 'type': 'date'},
-                    ],
-                    defaultSortcolumnName: 'Date',
-                    tableButtonName: 'Approve',
-                    noRecordFoundMessage: 'Nothing to show',
-                    columnWidths: const [0.3, 0.2, 0.2],
-                    data: tableData,
-                    onLoadComplete: onLoadComplete,
-                    showNavigation: true,
-                    showSelectionBoxes: true,
-                  ),
+              ),
+              Expanded(
+                child: FinPlanTableWidget(
+                  header: const [
+                    {'label': 'Paid To', 'type': 'String'},
+                    {'label': 'Amount', 'type': 'double'},
+                    {'label': 'Date', 'type': 'date'},
+                  ],
+                  defaultSortcolumnName: 'Date',
+                  tableButtonName: 'Approve',
+                  noRecordFoundMessage: 'Nothing to show',
+                  columnWidths: const [0.3, 0.2, 0.2],
+                  data: tableData,
+                  onLoadComplete: onLoadComplete,
+                  showNavigation: true,
+                  showSelectionBoxes: true,
                 ),
-              ],
-            ),
+              ),
+            ],
+          // else ends here
+        ],
+      ),
     );
   }
 
@@ -371,7 +383,9 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
 
   // method to handle date range click
   void handleDateRangeSelection(DateTime startDate, DateTime endDate) async {
-    log.d('In callback startDate $startDate, endDate $endDate');
+
+    log.d('Inside handleDateRangeSelection method : startDate $startDate, endDate $endDate');
+
     // setState(() {
     //   selectedStartDate = startDate;
     //   selectedEndDate = endDate;
@@ -383,11 +397,12 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
       selectedStartDate = startDate;
       selectedEndDate = endDate;
     });
-    allData = await getAllTransactionMessages(selectedStartDate, selectedEndDate);
-    tableData = allData;
-    filteredDataMap = generateDataMap(allData);
     
-    setState(() {
+    allData = await getAllTransactionMessages(selectedStartDate, selectedEndDate);
+
+    setState(() {  
+      tableData = allData;
+      filteredDataMap = generateDataMap(allData);
       isLoading = false; // Hide loading indicator once data is fetched
     });
 
@@ -429,10 +444,10 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
       else if(pillName == 'Others' && each['BeneficiaryType'] == ''){
         temp.add(each);
       }
-      else if(pillName == 'Credit' && each['Type'] == 'credit'){
+      else if(pillName == 'Credit' && each['Type'].toUpperCase() == 'CREDIT'){
         temp.add(each);
       }
-      else if(pillName == 'Debit' && each['Type'] == 'debit'){
+      else if(pillName == 'Debit' && each['Type'].toUpperCase() == 'DEBIT'){
         temp.add(each);
       }
       // For rest entries

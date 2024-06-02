@@ -23,6 +23,7 @@ class SalesforceAuthService {
   static late final WebViewController webViewController;
 
   static Future<String?> authenticate(BuildContext context) async {
+    
     BuildContext currentContext = context;
 
     return Navigator.push(

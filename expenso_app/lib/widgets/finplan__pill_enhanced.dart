@@ -1,5 +1,6 @@
 // ignore_for_file: must_be_immutable, no_leading_underscores_for_local_identifiers
 
+import 'package:expenso_app/util/finplan__constants.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
@@ -14,6 +15,7 @@ class FinPlanEnhancedPill extends StatelessWidget {
   final List<Map<String, dynamic>> data;
   final Function onPillSelected;
   late Map<String, List<Map<String, dynamic>>> dataMapByTypes;
+  final Map<String, List<dynamic>> ICON_LABEL_DATA = FinPlanConstant.ICON_LABEL_DATA;
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +23,8 @@ class FinPlanEnhancedPill extends StatelessWidget {
     dataMapByTypes = generateTypesFromData();
     List<String> allTypes = dataMapByTypes.keys.toList();
     allTypes.sort();
+
+    Logger().d('All Types are inside build in enhancedPill widget => $allTypes');
     
     return Container(
       decoration: BoxDecoration(
@@ -95,69 +99,13 @@ class FinPlanEnhancedPill extends StatelessWidget {
     return label;
   }
 
+  // Get the specific icon for the specific beneficiary type
   IconData getPillIcon(String type) {
-    IconData iconData = Icons.miscellaneous_services;
-    switch (type) {
-      case 'Aquarium':
-        iconData = Icons.water;
-        break;
-      case 'Bills':
-        iconData = Icons.receipt;
-        break;
-      case 'Broker':
-        iconData = Icons.my_library_books_outlined;
-        break;
-      case 'Dress':
-        iconData = Icons.accessibility_rounded;
-        break;
-      case 'Entertainment':
-        iconData = Icons.movie_creation_outlined;
-        break;
-      case 'Food and Drinks':
-        iconData = Icons.restaurant;
-        break;
-      case 'Fuel':
-        iconData = Icons.oil_barrel_outlined;
-        break;
-      case 'Grocery':
-        iconData = Icons.local_grocery_store;
-        break;
-      case 'Investment':
-        iconData = Icons.inventory_2_outlined;
-        break;
-      case 'Medicine':
-        iconData = Icons.medication_liquid;
-        break;
-      case 'OTT':
-        iconData = Icons.tv;
-        break;
-      case 'Salary':
-        iconData = Icons.attach_money;
-        break;
-      case 'Shopping':
-        iconData = Icons.shopping_bag_outlined;
-        break;
-      case 'Transfer':
-        iconData = Icons.bookmark_rounded;
-        break;
-      case 'Travel':
-        iconData = Icons.travel_explore_rounded;
-        break;
-      case 'All':
-        iconData = Icons.done_all_sharp;
-        break;
-      case 'Credit':
-        iconData = Icons.arrow_downward_sharp;
-        break;
-      case 'Debit':
-        iconData = Icons.arrow_outward_outlined;
-        break;
-      default:
-        break;
-    }
+    IconData iconData =  ICON_LABEL_DATA[type]?[1] ?? Icons.miscellaneous_services;
     return iconData;
   }
 
+  // Get the specific label for the specific beneficiary type
   String getPillLabel(String eachType) {
 
     int count = dataMapByTypes[eachType]?.length ?? 0;

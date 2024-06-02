@@ -177,7 +177,12 @@ class FinPlanTableWidgetState extends State<FinPlanTableWidget> {
     );
   }
 
+  // createTableButton(String buttonName, {String count = ''}){
   createTableButton(String buttonName){
+    // The button name should show in a format => 'Approve 12' (where 12 is the count of rows selected)
+    // If no rows are selected it should just show the name of the button as => 'Approve'
+    String btnName = '$buttonName ${selectedRowIds.isEmpty ? '' : selectedRowIds.length.toString()}';
+    Logger().d('Hi here!');
     return
       ElevatedButton.icon(
         onPressed: () async {
@@ -187,7 +192,7 @@ class FinPlanTableWidgetState extends State<FinPlanTableWidget> {
           });
         },
         icon: const Icon(Icons.check), //, color: Color.fromARGB(255, 194, 127, 233)), // Set the icon color
-        label: Text(buttonName),
+        label: Text(btnName),
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.resolveWith<Color>(
             (Set<MaterialState> states) {
