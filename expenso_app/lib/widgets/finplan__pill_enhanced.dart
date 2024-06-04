@@ -1,4 +1,4 @@
-// ignore_for_file: must_be_immutable, no_leading_underscores_for_local_identifiers
+// ignore_for_file: must_be_immutable, no_leading_underscores_for_local_identifiers, non_constant_identifier_names
 
 import 'package:expenso_app/util/finplan__constants.dart';
 import 'package:flutter/gestures.dart';
@@ -15,7 +15,6 @@ class FinPlanEnhancedPill extends StatelessWidget {
   final List<Map<String, dynamic>> data;
   final Function onPillSelected;
   late Map<String, List<Map<String, dynamic>>> dataMapByTypes;
-  final Map<String, List<dynamic>> ICON_LABEL_DATA = FinPlanConstant.ICON_LABEL_DATA;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +27,7 @@ class FinPlanEnhancedPill extends StatelessWidget {
     
     return Container(
       decoration: BoxDecoration(
-        //color: Colors.blue.shade50, // Set your desired background color
+        //color: Colors.blue.shade50, // Set desired background color
         borderRadius: BorderRadius.circular(5), // Make borders circular
       ),
       padding: const EdgeInsets.all(4.0),
@@ -53,8 +52,9 @@ class FinPlanEnhancedPill extends StatelessWidget {
       fMap[beneficiaryType] = existing;
 
       // along with beneficiary types, we will also be setting the transaction types
-      // i.e. Credit or Debit and classify the `data` by trasnaction types
-      String type = each['Type'];
+      // i.e. Credit or Debit and classify the `data` by transaction types
+      // NOTE : The word `credit/debit` is changed to `Credit/Debit` for the value shown in UI
+      String type = each['Type'] == 'credit' ? 'Credit' : 'Debit';
       List<Map<String, dynamic>> existingRecords = fMap[type] ?? [];
       existing.add(each);
       fMap[type] = existingRecords;
@@ -99,9 +99,9 @@ class FinPlanEnhancedPill extends StatelessWidget {
     return label;
   }
 
-  // Get the specific icon for the specific beneficiary type
+  // Get the specific icon for the specific beneficiary type from the constant map (as defined in FinPlanConstant file)
   IconData getPillIcon(String type) {
-    IconData iconData =  ICON_LABEL_DATA[type]?[1] ?? Icons.miscellaneous_services;
+    IconData iconData =  FinPlanConstant.ICON_LABEL_DATA[type]?[1] ?? Icons.miscellaneous_services;
     return iconData;
   }
 

@@ -441,14 +441,14 @@ class FinPlanTableWidgetState extends State<FinPlanTableWidget> {
 
   TextStyle getTextStyle(String? headerName, dynamic row) { 
     // Logger().d('row= $row');
-    String txnType = row['Type'];// credit or debit
+    String txnType = row['Type'].toUpperCase();// CREDIT or DEBIT
     Color color = Colors.black;
     if(headerName == 'Amount'){
       switch(txnType){
-        case 'credit':
+        case 'CREDIT':
           color = Colors.green;
           break;
-        case 'debit':
+        case 'DEBIT':
           color = Theme.of(context).primaryColor;
           break;
         default:
