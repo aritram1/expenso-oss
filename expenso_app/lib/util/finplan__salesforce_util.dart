@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'dart:core';
 import 'dart:math';
 import 'package:expenso_app/util/finplan__constants.dart';
+import 'package:expenso_app/util/finplan__filemanager_util.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -30,6 +31,7 @@ class SalesforceUtil{
 
   static String accessToken = '';
   static String instanceUrl = '';
+  static String tokenFileName = '';
   static Logger log = Logger();
 
   static bool isLoggedIn() => (accessToken != '');
@@ -45,6 +47,8 @@ class SalesforceUtil{
     pwdWithToken          = dotenv.env['pwdWithToken'] ?? '';
     tokenEndpoint         = dotenv.env['tokenEndpoint'] ?? '';
     tokenGrantType        = dotenv.env['tokenGrantType'] ?? '';
+
+    tokenFileName = dotenv.env['tokenFileName'] ?? '';
 
     compositeUrlForInsert = dotenv.env['compositeUrlForInsert'] ?? ''; // Standard Insert API from Salesforce - '/services/data/v59.0/composite/tree/'
     compositeUrlForUpdate = dotenv.env['compositeUrlForUpdate'] ?? ''; // Standard Update API from Salesforce - '/services/data/v59.0/composite/sobjects/'
@@ -227,7 +231,7 @@ class SalesforceUtil{
   static Future<Map<String, dynamic>> _login() async{
     Map<String, dynamic> loginResponse = {};
     try{
-      String contents = await SalesforceAuthService.getFromFile() ?? ''; // 'access_token') ?? 'Hello Hi there, no token yet!';
+      String contents = await FileManagerUtil.getFromFile(tokenFileName, key : 'access_token') ?? '';
       if(contents != ''){
         final Map<String, dynamic> data = json.decode(contents);
         accessToken = data['access_token'];

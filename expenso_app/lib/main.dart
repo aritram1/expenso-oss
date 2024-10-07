@@ -16,7 +16,8 @@ void main() async {
   handlePermissions();
 
   // initialize the db
-  initDB();
+  // TBD
+  // initDB();
 
   // Finally run the app
   runApp(const MyApp());

@@ -1,5 +1,5 @@
 // ignore_for_file: prefer_const_constructors
-import 'package:expenso_app/screens/message/finplan__message_view.dart';
+import 'package:expenso_app/screens/message/finplan__message_detail_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:intl/intl.dart';
@@ -182,7 +182,7 @@ class FinPlanTableWidgetState extends State<FinPlanTableWidget> {
     // The button name should show in a format => 'Approve 12' (where 12 is the count of rows selected)
     // If no rows are selected it should just show the name of the button as => 'Approve'
     String btnName = '$buttonName ${selectedRowIds.isEmpty ? '' : selectedRowIds.length.toString()}';
-    Logger().d('Hi here!');
+    // Logger().d('Hi here!');
     return
       ElevatedButton.icon(
         onPressed: () async {

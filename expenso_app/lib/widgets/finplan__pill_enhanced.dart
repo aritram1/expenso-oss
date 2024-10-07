@@ -46,7 +46,7 @@ class FinPlanEnhancedPill extends StatelessWidget {
     for (Map<String, dynamic> each in data) { // The `data` is the record list that has been passed to this widget
 
       // if beneficiary-type is blank or null then set it to `Others` and classify the `data` by beneficiary types
-      String beneficiaryType = (each['BeneficiaryType']?.isEmpty) ? 'Others' : each['BeneficiaryType'];
+      String beneficiaryType = (each['BeneficiaryType']?.isEmpty) ? 'Other' : each['BeneficiaryType'];
       List<Map<String, dynamic>> existing = fMap[beneficiaryType] ?? [];
       existing.add(each);
       fMap[beneficiaryType] = existing;

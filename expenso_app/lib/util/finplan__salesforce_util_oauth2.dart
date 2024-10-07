@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:expenso_app/util/finplan__exception.dart';
+import 'package:expenso_app/util/finplan__filemanager_util.dart';
 import 'package:expenso_app/util/finplan__salesforce_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -24,8 +25,6 @@ class SalesforceAuthService {
 
   static Future<String?> authenticate(BuildContext context) async {
     
-    BuildContext currentContext = context;
-
     return Navigator.push(
       context,
       MaterialPageRoute(
@@ -62,7 +61,7 @@ class SalesforceAuthService {
                     );
                     if (tokenResponse.statusCode == 200) {
                       Logger().d('Token is received as: ${tokenResponse.body}');
-                      await _saveToFile(tokenResponse.body);
+                      await FileManagerUtil.saveToFile(tokenFileName, tokenResponse.body);
                       Navigator.pop(context);
                       _completer.complete(tokenResponse.body);
                     } 
@@ -81,42 +80,20 @@ class SalesforceAuthService {
     ).then((_) => _completer.future);
   }
 
-  static Future<void> _saveToFile(String responseBody) async {
-    Logger().d('Token is getting saved as $responseBody');
-    final directory = await getApplicationDocumentsDirectory();
-    Logger().d('Path: ${directory.path}');
-    Logger().d('Filename is=> ${directory.path}/$tokenFileName');
-    final file = File('${directory.path}/$tokenFileName');
-    await file.writeAsString(responseBody);
-    Logger().d('After login file is => ${await getFromFile()}');
-  }
-
-  // Get a value given key
-  static Future<String?> getFromFile({ String key = ''}) async {
-    Logger().d('Inside get from file method=>');
-    final directory = await getApplicationDocumentsDirectory();
-    final file = File('${directory.path}/$tokenFileName');
-    String? value = '';
-    if (await file.exists()) {
-      final contents = await file.readAsString();
-      final Map<String, dynamic> data = json.decode(contents);
-      if(key == ''){
-        value = json.encode(data);
-      }
-      else{
-        value = data[key];
-      }
-    }
-    Logger().d('key returned is=> $key');
-    Logger().d('so value returned is=> $value');
-    return value;
-  }
+  
 
 
   static Future<void> logout() async {
-    String? accessToken = await getFromFile(key : 'access_token');
+    String? accessToken = await FileManagerUtil.getFromFile(tokenFileName, key : 'access_token');
     Logger().d('access_token in logout is => $accessToken');
-    Logger().d('before logout file is => ${await getFromFile()}');
+    Logger().d('before logout file is => ${await FileManagerUtil.getFromFile(tokenFileName, key : 'access_token')}');
+    
+    await revokeAccessToken(accessToken);
+
+    Logger().d('after logout file is => ${FileManagerUtil.getFromFile(tokenFileName, key : 'access_token')}');
+  }
+
+  static dynamic revokeAccessToken(String? accessToken) async{
     final response = await http.post(
       Uri.parse(revokeUrlEndpoint),
       headers: {
@@ -126,16 +103,13 @@ class SalesforceAuthService {
         'token': accessToken,
       },
     );
-    await handleResponse(response);
-
-    Logger().d('after logout file is => ${getFromFile()}');
-  }
-
-  static handleResponse(dynamic response) async{
+    
     // Handle the normal 200 status code 
     if (response.statusCode == 200) {
-      await _clearStoredToken();  // Logout successful, ensure to remove the access token from the token file
+      // Logout successful, ensure to remove the access token from the token file
+      await FileManagerUtil.deleteKeyFromFile(tokenFileName, key : 'access_token');  
     }
+    
     // If its redirection, status 302, handle redirection
     else if (response.statusCode == 302) {
       
@@ -147,7 +121,7 @@ class SalesforceAuthService {
         final redirectedResponse = await http.get(Uri.parse(redirectedUrl));
         Logger().d('After redirection status code: ${redirectedResponse.statusCode}');
         
-        await _clearStoredToken();  // Logout successful, ensure to remove the access token from the token file
+        await FileManagerUtil.deleteKeyFromFile(tokenFileName, key : 'access_token');  // Logout successful, ensure to remove the access token from the token file
       } 
       else {
         Logger().e('Error : StatusCode 302 : RedirectionUrl is empty!');
@@ -160,32 +134,9 @@ class SalesforceAuthService {
     }
   }
 
-  static Future<void> _clearStoredToken() async {
-    final directory = await getApplicationDocumentsDirectory();
-    final file = File('${directory.path}/$tokenFileName');
-
-    if (await file.exists()) {
-      try {
-        final contents = await file.readAsString();
-        final Map<String, dynamic> data = json.decode(contents);
-        if (data.containsKey('access_token')) {
-          data.remove('access_token');
-          await file.writeAsString(json.encode(data));
-          Logger().d('Stored token cleared successfully.');
-        } else {
-          Logger().d('No token found in the file.');
-        }
-      } catch (error) {
-        Logger().e('Failed to clear stored token: $error');
-      }
-    } else {
-      Logger().d('Token file does not exist.');
-    }
-  }
-
   static Future<String?> checkIfAlreadyLoggedIn() async {
     // Get the existing token
-    String? existingToken = await getFromFile(key: 'access_token'); 
+    String? existingToken = await FileManagerUtil.getFromFile(tokenFileName, key: 'access_token'); 
 
     // do a query callout
     if(existingToken != '' && existingToken != null){
@@ -198,7 +149,7 @@ class SalesforceAuthService {
       dynamic error = response['error'];
 
       if(error != null && error.isNotEmpty && error.toString().contains('expired')){
-        _clearStoredToken();
+        FileManagerUtil.deleteKeyFromFile(tokenFileName, key : 'access_token');
         existingToken = '';
       }
     }

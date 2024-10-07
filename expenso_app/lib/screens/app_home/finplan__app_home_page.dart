@@ -2,15 +2,15 @@
 
 import 'dart:convert';
 
-import 'package:device_info/device_info.dart';
 import 'package:expenso_app/screens/account/finplan__all_accounts_view.dart';
 import 'package:expenso_app/screens/app_bar/finplan__app_bar.dart';
 import 'package:expenso_app/screens/calendar/finplan__calendar_view.dart';
 import 'package:expenso_app/screens/message/finplan__all_messages_view.dart';
 import 'package:expenso_app/screens/transaction/finplan__transactions_all.dart';
-import 'package:expenso_app/util/expense_data_generator.dart';
+import 'package:expenso_app/util/finplan__filemanager_util.dart';
 import 'package:expenso_app/widgets/finplan__Tile.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:logger/logger.dart';
 import 'package:expenso_app/util/finplan__salesforce_util_oauth2.dart';
 
@@ -26,10 +26,13 @@ class FinPlanAppHomePage extends StatefulWidget {
 
 class _FinPlanAppHomePageState extends State<FinPlanAppHomePage> {
   
+  String tokenFileName = dotenv.env['tokenFileName'] ?? '';
+  
   static final Logger log = Logger();
 
-  static bool isLoggedIn = false;
-  static String? accessToken;
+  // static bool isLoggedIn = false;
+  // static String? accessToken;
+
 
   dynamic Function(String) onLoadComplete = (result) {
     log.d('Table loaded Result from HomeScreen0 => $result');
@@ -79,17 +82,18 @@ class _FinPlanAppHomePageState extends State<FinPlanAppHomePage> {
     // data = getDataForLast1Year();
 
     // testing
-    getTokenFilecontent();
+    // getTokenFilecontent();
   }
 
   // testing
-  getTokenFilecontent() async{
-    Logger().d('Inside getTokenFilecontent methodToken is getting saved as');
-    String? content = await SalesforceAuthService.getFromFile();
-    Logger().d('File content before the Home Page is loaded : $content');
-    accessToken = await SalesforceAuthService.getFromFile(key : 'access_token');
-    isLoggedIn = accessToken != null;
-  }
+  // getTokenFilecontent() async{
+  //   Logger().d('Inside getTokenFilecontent methodToken is getting saved as');
+  //   String tokenFileName = dotenv.env['tokenFileName'] ?? '';
+  //   String? content = await SalesforceAuthService.getFromFile(tokenFileName);
+  //   Logger().d('File content before the Home Page is loaded : $content');
+  //   accessToken = await SalesforceAuthService.getFromFile(tokenFileName, key : 'access_token');
+  //   isLoggedIn = accessToken != null;
+  // }
 
   
   @override
@@ -121,6 +125,23 @@ class _FinPlanAppHomePageState extends State<FinPlanAppHomePage> {
                       log.e('Error while doing logout : $error');
                     }
                     Navigator.of(context).pop();
+                    Navigator.push(context, MaterialPageRoute(
+                      builder: (_)=>
+                        Scaffold(
+                          appBar: AppBar(),
+                          body: Center(
+                            child: SizedBox(
+                              height: 200,
+                              width: 200,
+                              child: AppBar(
+                                // sms: jsonEncode(each),
+                                // onCallBack: (){}
+                              ),
+                            ),
+                          )
+                        )
+                      )
+                    );
                     return true;
                   }
                 },
@@ -184,7 +205,7 @@ class _FinPlanAppHomePageState extends State<FinPlanAppHomePage> {
                             ),
                             onCallBack: () async{
                               var currentContext = context;
-                              final fileContent = await SalesforceAuthService.getFromFile() ?? 'Nothing is present'; 
+                              final fileContent = await FileManagerUtil.getFromFile(tokenFileName, ) ?? 'Nothing is present'; 
                               navigateTo(currentContext, Scaffold(appBar: AppBar(), body: Center(child: Text(fileContent)))); 
                             }
                           )
@@ -405,7 +426,7 @@ class _FinPlanAppHomePageState extends State<FinPlanAppHomePage> {
 
   // A generic method to handle routes
   void navigateTo(BuildContext context, Widget? widget) async {
-    String contents = await SalesforceAuthService.getFromFile() ?? ''; // 'access_token') ?? 'Hello Hi there, no token yet!';
+    String contents = await FileManagerUtil.getFromFile(tokenFileName, key : 'access_token') ?? 'no token yet!';
     String value = 'pyak pyak (you are not logged in yet)';
     Logger().d('Inside navigate to method : $contents');
     if(contents != ''){

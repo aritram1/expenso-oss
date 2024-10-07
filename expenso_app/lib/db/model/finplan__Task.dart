@@ -1,11 +1,11 @@
 // The model class to represent any task
 
 class Task{
-
+       
+  String id;
   String name;
   String detail;
   DateTime when;
-  // String when;
   bool allDay;
   bool recurring;
   int priority;
@@ -19,17 +19,18 @@ class Task{
     this.allDay = false,
     this.priority = 1,
     this.completed = false
-  });
+  }): id = 'SMS${when.toString()}';
 
   Map<String, dynamic> toMap(){
     return {
+      'id' : id,
       'name' : name,
+      'detail' : detail,
       'when' : when.toString(),
-      'details' : detail,
-      'priority' : priority,
-      // 'recurring' : recurring,
       'allDay' : allDay,
-      // 'completed' : false
+      'recurring' : recurring,
+      'priority' : priority,
+      'completed' : completed,
     };
   }
 }

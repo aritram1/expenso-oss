@@ -3,8 +3,10 @@
 import 'package:expenso_app/screens/app_home/finplan__app_home_page.dart';
 import 'package:expenso_app/screens/calendar/finplan__calendar_view.dart';
 import 'package:expenso_app/screens/login_page/finplan__login_view.dart';
+import 'package:expenso_app/util/finplan__filemanager_util.dart';
 import 'package:expenso_app/util/finplan__salesforce_util_oauth2.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:logger/logger.dart';
 
 class FinPlanSplashPage extends StatefulWidget {
@@ -17,6 +19,9 @@ class FinPlanSplashPage extends StatefulWidget {
 }
 
 class _FinPlanSplashPageState extends State<FinPlanSplashPage> {
+  
+  String tokenFileName = dotenv.env['tokenFileName'] ?? '';
+
   @override
   void initState() {
     super.initState();
@@ -24,7 +29,7 @@ class _FinPlanSplashPageState extends State<FinPlanSplashPage> {
   }
 
   checkLogin(){
-    return SalesforceAuthService.getFromFile(key: 'access_token');
+    return FileManagerUtil.getFromFile(tokenFileName, key: 'access_token');
   }
 
   checkLogin2(){
