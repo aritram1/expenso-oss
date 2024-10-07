@@ -426,10 +426,10 @@ class _FinPlanAppHomePageState extends State<FinPlanAppHomePage> {
 
   // A generic method to handle routes
   void navigateTo(BuildContext context, Widget? widget) async {
-    String contents = await FileManagerUtil.getFromFile(tokenFileName, key : 'access_token') ?? 'no token yet!';
+    String? contents = await FileManagerUtil.getFromFile(tokenFileName, key : 'access_token');
     String value = 'pyak pyak (you are not logged in yet)';
     Logger().d('Inside navigate to method : $contents');
-    if(contents != ''){
+    if(contents != null){
       final Map<String, dynamic> data = json.decode(contents);
       value = data['access_token'];
     }
