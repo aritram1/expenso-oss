@@ -1,7 +1,7 @@
 // ignore_for_file: must_be_immutable, no_leading_underscores_for_local_identifiers, non_constant_identifier_names
 
 import 'package:expenso_app/util/finplan__constants.dart';
-import 'package:flutter/gestures.dart';
+// import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 
@@ -42,11 +42,12 @@ class FinPlanEnhancedPill extends StatelessWidget {
   // This method converts the input `data` to a `dataMap` - grouped by beneficiary / expense types
   Map<String, List<Map<String, dynamic>>> generateTypesFromData() {
     Map<String, List<Map<String, dynamic>>> fMap = {};
-    
+    Logger().d('Data passed is => ${data.length}');
     for (Map<String, dynamic> each in data) { // The `data` is the record list that has been passed to this widget
 
       // if beneficiary-type is blank or null then set it to `Others` and classify the `data` by beneficiary types
-      String beneficiaryType = (each['BeneficiaryType']?.isEmpty) ? 'Other' : each['BeneficiaryType'];
+      String beneficiaryType = each['BeneficiaryType'];
+      
       List<Map<String, dynamic>> existing = fMap[beneficiaryType] ?? [];
       existing.add(each);
       fMap[beneficiaryType] = existing;
@@ -55,9 +56,9 @@ class FinPlanEnhancedPill extends StatelessWidget {
       // i.e. Credit or Debit and classify the `data` by transaction types
       // NOTE : The word `credit/debit` is changed to `Credit/Debit` for the value shown in UI
       String type = each['Type'] == 'credit' ? 'Credit' : 'Debit';
-      List<Map<String, dynamic>> existingRecords = fMap[type] ?? [];
-      existing.add(each);
-      fMap[type] = existingRecords;
+      List<Map<String, dynamic>> creditDebitEntries = fMap[type] ?? [];
+      creditDebitEntries.add(each);
+      fMap[type] = creditDebitEntries;
 
     }
     Logger().d('Currently the map in fMap => $fMap');
@@ -109,7 +110,8 @@ class FinPlanEnhancedPill extends StatelessWidget {
   String getPillLabel(String eachType) {
 
     int count = dataMapByTypes[eachType]?.length ?? 0;
-    
+    String label = eachType;
+
     // for all the types
     if(eachType == 'All'){
       count = data.length;
@@ -134,8 +136,8 @@ class FinPlanEnhancedPill extends StatelessWidget {
     else{
       count = dataMapByTypes[eachType]?.length ?? 0;
     }
-
     return count.toString();
+    // return '$label-$count';
   }
   
   List<Widget> generatePills(List<String> availableTypes) {

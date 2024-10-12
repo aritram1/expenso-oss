@@ -231,10 +231,10 @@ class SalesforceUtil{
   static Future<Map<String, dynamic>> _login() async{
     Map<String, dynamic> loginResponse = {};
     try{
-      String? accessToken = await SecureFileManager.getAccessToken();
-      String? instanceUrl = await SecureFileManager.getInstanceURL();
+      accessToken = await SecureFileManager.getAccessToken() ?? '';
+      instanceUrl = await SecureFileManager.getInstanceURL() ?? '';
 
-      if(accessToken == null || instanceUrl == null){
+      if(accessToken == '' || instanceUrl == ''){
         // Log an error
         String errorMessage = 'Acccess Token and Instance URL both are required! token : $accessToken, url : $instanceUrl';
         loginResponse['error'] = errorMessage;

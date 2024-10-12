@@ -28,19 +28,6 @@ class _FinPlanSplashPageState extends State<FinPlanSplashPage> {
     // No Custom Initialization logic yet
   }
 
-  // checkLogin(){
-  //   // return FileManager.getFromFile(tokenFileName, key: 'access_token');
-  //   // new
-  //   return SecureFileManager.getAccessToken();
-  // }
-
-  // checkLogin(){
-  //   return SalesforceAuthService.checkIfAlreadyLoggedIn();
-  //   // Get the existing token
-  //   String? existingToken = await SecureFileManager.getAccessToken();
-  //   return existingToken == null;
-  // }
-
   getToken (){
     return SecureFileManager.getAccessToken();
   }
@@ -59,6 +46,9 @@ class _FinPlanSplashPageState extends State<FinPlanSplashPage> {
         else {
           Logger().d('Inside build method of splash page, the value of token is ${snapshot.data}');
           if (snapshot.data != null && snapshot.data != '' && !snapshot.data!.toUpperCase().startsWith('ERROR')){
+            
+            // Navigator.of(context).pop();
+
             return Scaffold(
               body: FinPlanAppHomePage(title: 'Expenso')
             );

@@ -3,6 +3,7 @@
 import 'package:expenso_app/screens/account/finplan__all_accounts_view.dart';
 import 'package:expenso_app/screens/app_bar/finplan__app_bar.dart';
 import 'package:expenso_app/screens/calendar/finplan__calendar_view.dart';
+import 'package:expenso_app/screens/login_page/finplan__login_view.dart';
 import 'package:expenso_app/screens/message/finplan__all_messages_view.dart';
 import 'package:expenso_app/screens/transaction/finplan__transactions_all.dart';
 import 'package:expenso_app/util/finplan__secure_filemanager.dart';
@@ -123,23 +124,25 @@ class _FinPlanAppHomePageState extends State<FinPlanAppHomePage> {
                       log.e('Error while doing logout : $error');
                     }
                     Navigator.of(context).pop();
-                    Navigator.push(context, MaterialPageRoute(
-                      builder: (_)=>
-                        Scaffold(
-                          appBar: AppBar(),
-                          body: Center(
-                            child: SizedBox(
-                              height: 200,
-                              width: 200,
-                              child: AppBar(
-                                // sms: jsonEncode(each),
-                                // onCallBack: (){}
-                              ),
-                            ),
-                          )
-                        )
-                      )
-                    );
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => FinPlanLoginPage(title: 'Expenso')));
+                    
+                    // Navigator.push(context, MaterialPageRoute(
+                    //   builder: (_)=>
+                    //     Scaffold(
+                    //       appBar: AppBar(),
+                    //       body: Center(
+                    //         child: SizedBox(
+                    //           height: 200,
+                    //           width: 200,
+                    //           child: AppBar(
+                    //             // sms: jsonEncode(each),
+                    //             // onCallBack: (){}
+                    //           ),
+                    //         ),
+                    //       )
+                    //     )
+                    //   )
+                    // );
                     return true;
                   }
                 },

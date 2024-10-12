@@ -7,6 +7,7 @@ import 'package:device_info/device_info.dart';
 import 'package:expenso_app/screens/app_bar/finplan__app_bar.dart';
 import 'package:expenso_app/screens/message/finplan__message_detail_view.dart';
 import 'package:expenso_app/util/expense_data_generator.dart';
+import 'package:expenso_app/util/finplan__constants.dart';
 import 'package:expenso_app/widgets/finplan__datepicker_panel.dart';
 import 'package:expenso_app/widgets/finplan__table.dart';
 import 'package:flutter/material.dart';
@@ -271,7 +272,7 @@ Future<dynamic> showConfirmationBox(BuildContext context, String opType) {
   String title = 'Please confirm';
   String choiceYes = 'Yes';
   String choiceNo = 'No';
-  String content = (opType == 'Sync')
+  String content = (opType == FinPlanConstant.SYNC)
       ? 'This will delete existing messages and recreate them. Proceed?'
       : 'This will delete all messages and transactions. Proceed?';
 

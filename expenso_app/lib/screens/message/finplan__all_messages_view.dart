@@ -239,7 +239,7 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
               }
               BuildContext currentContext = context;
               // Get an alert dialog as a confirmation box
-              bool shouldProceed = await showConfirmationBox(currentContext, 'Sync');
+              bool shouldProceed = await showConfirmationBox(currentContext, FinPlanConstant.SYNC);
               if (shouldProceed) {
 
                 // Set the loading indicator
@@ -331,7 +331,7 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
   // Util methods for this widget
   Icon getIcon(dynamic row) {
     Icon icon;
-    String type = row['BeneficiaryType'] ?? '';
+    String type = row['BeneficiaryType'];
     switch (type) {
       case 'Grocery':
         icon = const Icon(Icons.local_grocery_store);
@@ -360,7 +360,7 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
       // debugPrint('All Messages => ${jsonEncode(allData)}', wrapWidth: 2048);
 
       for(Map<String, dynamic> each in allData){
-        Logger().d('Each record $each');
+        // Logger().d('Each record $each');
       }
       filteredDataMap = generateDataMap(allData);
       Logger().d('filteredDataMap is: $filteredDataMap');
@@ -379,7 +379,7 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
     Map<String, List<Map<String, dynamic>>> fMap = {};
     for (Map<String, dynamic> each in data) {
       // if type is blank or null then set it to `Others`
-      String type = (each['BeneficiaryType'] == null || each['BeneficiaryType'] == '') ? 'Other' : each['BeneficiaryType'];
+      String type = (each['BeneficiaryType'] != '') ? each['BeneficiaryType'] : 'Other';
       List<Map<String, dynamic>> existing = filteredDataMap[type] ?? [];
       existing.add(each);
       fMap[type] = existing;
@@ -416,7 +416,7 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
   }
   
   Set<String> getAvailableTypes() {
-    if(filteredDataMap.isEmpty) throw FinPlanException('Filtered Map is empty! But why!');
+    if(filteredDataMap.isEmpty) throw FinPlanException('Filtered Map is empty! But why! check this method getAvailableTypes()');
     return filteredDataMap.keys.toSet();
   }
   
@@ -430,27 +430,8 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
     for(Map<String, dynamic> each in allData){
       Logger().d('each[beneficiaryType] is ${each['beneficiaryType']}');
       
-
-      // switch (pillName) {
-      //   case 'All':
-      //     temp.add(each);
-      //     break;
-      //   case 'Others':
-      //     if(each['BeneficiaryType'] == ''){
-      //       temp.add(each);
-      //     }
-      //     break;          
-      //   default:
-      //     temp.add(each);
-      //     break;
-      // }
-      
       // To show - back all records without any filter
       if(pillName == 'All'){
-        temp.add(each);
-      }
-      // For Misc / Other type entries
-      else if(pillName == 'Other' && each['BeneficiaryType'] == ''){
         temp.add(each);
       }
       else if(pillName == 'Credit' && each['Type'].toUpperCase() == 'CREDIT'){
@@ -459,6 +440,10 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
       else if(pillName == 'Debit' && each['Type'].toUpperCase() == 'DEBIT'){
         temp.add(each);
       }
+      // For Misc / Other type entries
+      // else if(pillName == 'Other' && each['BeneficiaryType'] == ''){
+      //   temp.add(each);
+      // }
       // For rest entries
       else if(each['BeneficiaryType'] == pillName){
         temp.add(each);
