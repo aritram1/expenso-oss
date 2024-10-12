@@ -41,8 +41,14 @@ class FinPlanLoginPageState extends State<FinPlanLoginPage> {
                   isLoading = true;
                 });
 
-                final token = await SalesforceAuthService.authenticate(context);
-                
+                String? token;
+                try{
+                  token = await SalesforceAuthService.authenticate(context);
+                }
+                catch(e){
+                  Logger().d('Error occurred in Login Page build : ${e.toString()}');
+                }
+   
                 setState(() {
                   isLoading = false;
                 });

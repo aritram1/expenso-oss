@@ -95,6 +95,9 @@ class FinPlanInboxMessageUtil {
                         || msgUppercase.contains('RS.')
                         || msgUppercase.contains('INR ');
       
+      // Add to the message list if 
+      // - Its NOT an OTP OR personal message
+      // - but a transactional message
       if(!isOTP && !isPersonal && isTransactional){
         filteredMsgList.add(msgList[i]);
       }

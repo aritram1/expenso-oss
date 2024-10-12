@@ -1,16 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:expenso_app/util/finplan__exception.dart';
-import 'package:expenso_app/util/finplan__salesforce_util.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
-class FileManagerUtil{
+class FileManager{
   static String clientId = dotenv.env['clientId'] ?? '';
   static String redirectUri = dotenv.env['redirectUri'] ?? '';
   static String tokenUrl = dotenv.env['tokenEndpoint'] ?? '';
@@ -33,7 +28,8 @@ class FileManagerUtil{
     final directory = await getApplicationDocumentsDirectory();
     final file = File('${directory.path}/$fileName');
     
-    if(!await file.exists()) return 'File "$fileName" not found!';
+    String fileNotFoundErrorMessage = 'Error : File "$fileName" not found!';
+    if(!await file.exists()) return fileNotFoundErrorMessage; // similar to `throw FinPlanException(fileNotFoundErrorMessage)`;
     
     final encodedContent = await file.readAsString();
     final Map<String, dynamic> fileContent = json.decode(encodedContent);
@@ -50,7 +46,6 @@ class FileManagerUtil{
   //   deleteKeyFromFile(tokenFileName);
   //   final directory = await getApplicationDocumentsDirectory();
   //   final file = File('${directory.path}/$tokenFileName');
-
   //   if (await file.exists()) {
   //     try {
   //       final contents = await file.readAsString();

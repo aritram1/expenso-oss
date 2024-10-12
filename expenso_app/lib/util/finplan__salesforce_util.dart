@@ -5,12 +5,12 @@ import 'dart:convert';
 import 'dart:core';
 import 'dart:math';
 import 'package:expenso_app/util/finplan__constants.dart';
-import 'package:expenso_app/util/finplan__filemanager_util.dart';
+import 'package:expenso_app/util/finplan__exception.dart';
+import 'package:expenso_app/util/finplan__filemanager.dart';
+import 'package:expenso_app/util/finplan__secure_filemanager.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:expenso_app/util/finplan__salesforce_util_oauth2.dart';
-
 class SalesforceUtil{
 
   // const static String VERSION = '59.0'
@@ -80,7 +80,7 @@ class SalesforceUtil{
     int batchCount = 0;
     Map<String, dynamic> resp;
 
-    if(opType == 'delete'){
+    if(opType == FinPlanConstant.DELETE){
       while(recordIds.isNotEmpty){
         eachBatchSize = min(recordIds.length, batchSize); // check the size of the list and split in a batch of 200
         for(int i=0; i<eachBatchSize; i++){
@@ -96,7 +96,7 @@ class SalesforceUtil{
         batchCount++;
       }
     }
-    else if(opType == 'insert' || opType == 'update'){
+    else if(opType == FinPlanConstant.INSERT || opType == FinPlanConstant.UPDATE){
       while(fieldNameValuePairs.isNotEmpty){
         
         // Add the required value attribute and reference as applicable for successful insert/update
@@ -231,18 +231,15 @@ class SalesforceUtil{
   static Future<Map<String, dynamic>> _login() async{
     Map<String, dynamic> loginResponse = {};
     try{
-      String contents = await FileManagerUtil.getFromFile(tokenFileName, key : 'access_token') ?? '';
-      if(contents != ''){
-        final Map<String, dynamic> data = json.decode(contents);
-        accessToken = data['access_token'];
-        instanceUrl = data['instance_url'];
-      }
-      if(accessToken == '' || instanceUrl == ''){
+      String? accessToken = await SecureFileManager.getAccessToken();
+      String? instanceUrl = await SecureFileManager.getInstanceURL();
+
+      if(accessToken == null || instanceUrl == null){
         // Log an error
-        // if(detaildebug) log.d('Response code other than 200 detected : ${resp.body}');
-        loginResponse['error'] = 'Some error occurred!';
+        String errorMessage = 'Acccess Token and Instance URL both are required! token : $accessToken, url : $instanceUrl';
+        loginResponse['error'] = errorMessage;
+        throw FinPlanException(errorMessage);
       }
-      // responseMap.add('data') = response.body;
     }
     catch(error){
       if(detaildebug) log.e('Error occurred while logging into Salesforce. Error is : $error');
@@ -287,7 +284,7 @@ class SalesforceUtil{
 
     Map<String, dynamic> body = {};
     try{
-      if(opType == 'insert'){
+      if(opType == FinPlanConstant.INSERT){
         body = await _insertToSalesforce(objAPIName, fieldNameValuePairs, batchCount);
         // if(detaildebug) log.d('body for insert : $body');
       }
@@ -333,9 +330,9 @@ class SalesforceUtil{
     dynamic resp;
     try{
       resp = await http.post(
-        Uri.parse(generateEndpointUrl(opType : 'insert', objAPIName : objAPIName)), // both are required params
+        Uri.parse(generateEndpointUrl(opType : FinPlanConstant.INSERT, objAPIName : objAPIName)), // both are required params
         headers: generateHeader(),
-        body: jsonEncode(generateBody(opType : 'insert', objAPIName : objAPIName, fieldNameValuePairs : fieldNameValuePairs, batchCount : batchCount)),
+        body: jsonEncode(generateBody(opType : FinPlanConstant.INSERT, objAPIName : objAPIName, fieldNameValuePairs : fieldNameValuePairs, batchCount : batchCount)),
       );
       int statusCode = resp.statusCode;
       if(detaildebug){
@@ -369,9 +366,9 @@ class SalesforceUtil{
     if(!isLoggedIn()) await loginToSalesforce();
     try{
       dynamic resp = await http.patch(
-        Uri.parse(generateEndpointUrl(opType : 'update', objAPIName : objAPIName)), // required param is opType
+        Uri.parse(generateEndpointUrl(opType : FinPlanConstant.UPDATE, objAPIName : objAPIName)), // required param is opType
         headers: generateHeader(),
-        body: jsonEncode(generateBody(opType : 'update', objAPIName : objAPIName, fieldNameValuePairs : fieldNameValuePairs, batchCount : batchCount)),
+        body: jsonEncode(generateBody(opType : FinPlanConstant.UPDATE, objAPIName : objAPIName, fieldNameValuePairs : fieldNameValuePairs, batchCount : batchCount)),
       );
       final List<dynamic> body = json.decode(resp.body);
       // if(detaildebug) log.d('Inside _updateToSalesforce StatusCode: ${resp.statusCode} || body: $body || updateResponse: $updateResponse');
@@ -392,7 +389,7 @@ class SalesforceUtil{
       dynamic resp = await http.delete(
         Uri.parse(
           generateEndpointUrl(
-            opType : 'delete', 
+            opType : FinPlanConstant.INSERT, 
             objAPIName : objAPIName, 
             recordIds : recordIds, 
             batchCount : batchCount, 
@@ -487,18 +484,26 @@ class SalesforceUtil{
   }
 
   // Generic method to generate the endpoint URL for the type of operation
-  static String generateEndpointUrl({required String opType, String objAPIName = '', List<String> recordIds = const [], int batchCount = 0, bool hardDelete = false}){
+  static String generateEndpointUrl({ required String opType, String objAPIName = '', 
+                                      List<String> recordIds = const [], 
+                                      int batchCount = 0, bool hardDelete = false}){
     String endpointUrl = '';
-    if(opType == 'login'){ // completed
-      endpointUrl = '$tokenEndpoint?client_id=$clientId&client_secret=$clientSecret&username=$userName&password=$pwdWithToken&grant_type=$tokenGrantType';
+    if(opType == FinPlanConstant.LOGIN){ // completed
+      endpointUrl = tokenEndpoint
+                      + '?' 
+                      + 'client_id=$clientId'
+                      + '&client_secret=$clientSecret'
+                      + '&username=$userName'
+                      + '&password=$pwdWithToken'
+                      + '&grant_type=$tokenGrantType';
     }
-    if(opType == 'insert'){ // completed
+    if(opType == FinPlanConstant.INSERT){ // completed
       endpointUrl = '$instanceUrl$compositeUrlForInsert$objAPIName';
     }
-    else if(opType == 'update'){ // completed 
+    else if(opType == FinPlanConstant.UPDATE){ // completed 
       endpointUrl = '$instanceUrl$compositeUrlForUpdate';
     }
-    else if(opType == 'delete'){
+    else if(opType == FinPlanConstant.DELETE){
       if(recordIds.isNotEmpty){
         String ids = recordIds.join(',');
         endpointUrl = '$instanceUrl$compositeUrlForDelete$ids';
@@ -510,15 +515,25 @@ class SalesforceUtil{
 
   // Generic method to generate the body from the type of operation
   static Map<String, dynamic> generateBody({required String opType, String objAPIName = '', List<Map<String, dynamic>> fieldNameValuePairs = const [], List<String> recordIds = const [], int batchCount = 0}){
+    
     Map<String, dynamic> body = {};
-    if(opType == 'insert' || opType == 'update'){
+    
+    if(opType == FinPlanConstant.DELETE){}                    // no body element is required for delete
+    else if(opType == FinPlanConstant.SYNC){}                 // do nothing
+    else if(opType == FinPlanConstant.DELETE_MESSAGES){}      // do nothing
+    else if(opType == FinPlanConstant.APPROVE_MESSAGES){      // Approve MEssages
+      Map<String, dynamic> dataMap = {};
+      dataMap['data'] = recordIds;
+      body['input'] = dataMap;
+    }
+    else if(opType == FinPlanConstant.INSERT || opType == FinPlanConstant.UPDATE){ // Insert or Update operation
       var allRecords = [];
       // int count = batchCount * MAXM_BATCH_SIZE;
       for(Map<String, dynamic> eachRecord in fieldNameValuePairs){
         Map<String, dynamic> each = {};
         each['attributes'] = {
           'type': objAPIName,
-          'referenceId': eachRecord['ref'] //'ref$count'
+          'referenceId': eachRecord['ref'] //value is like 'ref1', 'ref2', 'ref3'
         };
         for(String fieldAPIName in eachRecord.keys){
           if(fieldAPIName != 'ref'){
@@ -529,22 +544,13 @@ class SalesforceUtil{
         // count++;
       }
       body['records'] = allRecords;
-      if(opType == 'update'){
+      if(opType == FinPlanConstant.UPDATE){
         body['allOrNone'] = 'false';
       }// if(detaildebug) log.d('body=>' + body.toString());
     }
-    else if(opType == 'delete'){
-      //no body element is required for delete
-    }
-    else if(opType == 'sync'){}
-    else if(opType == 'delete_messages'){}
-    else if(opType == 'delete_transactions'){}
-    if(opType == 'approve_messages'){
-      Map<String, dynamic> dataMap = {};
-      dataMap['data'] = recordIds;
-      body['input'] = dataMap;
-    }
-    // // if(detaildebug) log.d(body);
+    
+    else if(opType == FinPlanConstant.DELETE_TRANSACTIONS){}  // do nothing
+    
     return body;
   }
 

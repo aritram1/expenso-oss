@@ -91,7 +91,7 @@ class FinPlanMessagesUtil {
     List<SmsMessage> messages = await FinPlanInboxMessageUtil.getMessages();
     List<Map<String, dynamic>> processedMessages = await FinPlanInboxMessageUtil.convert(messages);
     Map<String, dynamic> createResponse = await SalesforceUtil.dmlToSalesforce(
-        opType: 'insert',
+        opType: FinPlanConstant.INSERT,
         objAPIName : 'FinPlan__SMS_Message__c', 
         fieldNameValuePairs : processedMessages
     );

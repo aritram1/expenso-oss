@@ -1,13 +1,11 @@
 // ignore_for_file: prefer_const_constructors, use_build_context_synchronously
 
-import 'dart:convert';
-
 import 'package:expenso_app/screens/account/finplan__all_accounts_view.dart';
 import 'package:expenso_app/screens/app_bar/finplan__app_bar.dart';
 import 'package:expenso_app/screens/calendar/finplan__calendar_view.dart';
 import 'package:expenso_app/screens/message/finplan__all_messages_view.dart';
 import 'package:expenso_app/screens/transaction/finplan__transactions_all.dart';
-import 'package:expenso_app/util/finplan__filemanager_util.dart';
+import 'package:expenso_app/util/finplan__secure_filemanager.dart';
 import 'package:expenso_app/widgets/finplan__Tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -205,8 +203,9 @@ class _FinPlanAppHomePageState extends State<FinPlanAppHomePage> {
                             ),
                             onCallBack: () async{
                               var currentContext = context;
-                              final fileContent = await FileManagerUtil.getFromFile(tokenFileName, ) ?? 'Nothing is present'; 
-                              navigateTo(currentContext, Scaffold(appBar: AppBar(), body: Center(child: Text(fileContent)))); 
+                              // final fileContent = await FileManager.getFromFile(tokenFileName) ?? 'Error : File is blank!'; 
+                              final accessToken = await SecureFileManager.getAccessToken() ?? 'Error : no token found!'; 
+                              navigateTo(currentContext, Scaffold(appBar: AppBar(), body: Center(child: Text(accessToken)))); 
                             }
                           )
                         ),
@@ -426,15 +425,8 @@ class _FinPlanAppHomePageState extends State<FinPlanAppHomePage> {
 
   // A generic method to handle routes
   void navigateTo(BuildContext context, Widget? widget) async {
-    String? contents = await FileManagerUtil.getFromFile(tokenFileName, key : 'access_token');
-    String value = 'pyak pyak (you are not logged in yet)';
-    Logger().d('Inside navigate to method : $contents');
-    if(contents != null){
-      final Map<String, dynamic> data = json.decode(contents);
-      value = data['access_token'];
-    }
-    // String value = ((key != null) ? data[key] : json.encode(data)) ?? 'pyak pyak'; // an example key is access_token, for all keys refer below
-    
+    String accessToken = await SecureFileManager.getAccessToken() ?? 'Error! You are not logged in yet';
+    Logger().d('Inside navigate to method accessToken : $accessToken');
     Navigator.push(
       context, 
       MaterialPageRoute(
@@ -445,7 +437,7 @@ class _FinPlanAppHomePageState extends State<FinPlanAppHomePage> {
               padding: EdgeInsets.all(8),
               // child: // FinPlanMonthView()
               child: Center(
-                child: Text(value),
+                child: Text(accessToken),
               ),
             )
           )

@@ -1,10 +1,10 @@
 // ignore_for_file: prefer_const_constructors, use_build_context_synchronously
 
 import 'package:expenso_app/screens/app_home/finplan__app_home_page.dart';
-import 'package:expenso_app/screens/calendar/finplan__calendar_view.dart';
+// import 'package:expenso_app/screens/calendar/finplan__calendar_view.dart';
 import 'package:expenso_app/screens/login_page/finplan__login_view.dart';
-import 'package:expenso_app/util/finplan__filemanager_util.dart';
 import 'package:expenso_app/util/finplan__salesforce_util_oauth2.dart';
+import 'package:expenso_app/util/finplan__secure_filemanager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:logger/logger.dart';
@@ -20,26 +20,35 @@ class FinPlanSplashPage extends StatefulWidget {
 
 class _FinPlanSplashPageState extends State<FinPlanSplashPage> {
   
-  String tokenFileName = dotenv.env['tokenFileName'] ?? '';
+  // String tokenFileName = dotenv.env['tokenFileName'] ?? '';
 
   @override
   void initState() {
     super.initState();
-    // Initialization logic here
+    // No Custom Initialization logic yet
   }
 
-  checkLogin(){
-    return FileManagerUtil.getFromFile(tokenFileName, key: 'access_token');
-  }
+  // checkLogin(){
+  //   // return FileManager.getFromFile(tokenFileName, key: 'access_token');
+  //   // new
+  //   return SecureFileManager.getAccessToken();
+  // }
 
-  checkLogin2(){
-    return SalesforceAuthService.checkIfAlreadyLoggedIn();
+  // checkLogin(){
+  //   return SalesforceAuthService.checkIfAlreadyLoggedIn();
+  //   // Get the existing token
+  //   String? existingToken = await SecureFileManager.getAccessToken();
+  //   return existingToken == null;
+  // }
+
+  getToken (){
+    return SecureFileManager.getAccessToken();
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<String?>(
-      future: checkLogin2(),
+      future: getToken(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
@@ -48,12 +57,9 @@ class _FinPlanSplashPageState extends State<FinPlanSplashPage> {
           return Center(child: Text('Error: ${snapshot.error}'));
         } 
         else {
-          Logger().d('Inside build method of splash page, the value of token is ${snapshot.data} .');
-          // final bool isLoggedIn = (snapshot.data != null && snapshot.data != '') ? true : false;
-          // if (isLoggedIn) {
-          if (snapshot.data != null && snapshot.data != ''){
+          Logger().d('Inside build method of splash page, the value of token is ${snapshot.data}');
+          if (snapshot.data != null && snapshot.data != '' && !snapshot.data!.toUpperCase().startsWith('ERROR')){
             return Scaffold(
-              // body: FinPlanCalendar(onCallBack: ()=>{}) 
               body: FinPlanAppHomePage(title: 'Expenso')
             );
           } else {

@@ -2,13 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:expenso_app/util/finplan__exception.dart';
-import 'package:expenso_app/util/finplan__filemanager_util.dart';
+import 'package:expenso_app/util/finplan__filemanager.dart';
 import 'package:expenso_app/util/finplan__salesforce_util.dart';
+import 'package:expenso_app/util/finplan__secure_filemanager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class SalesforceAuthService {
@@ -60,12 +60,21 @@ class SalesforceAuthService {
                       },
                     );
                     if (tokenResponse.statusCode == 200) {
-                      Logger().d('Token is received as: ${tokenResponse.body}');
-                      await FileManagerUtil.saveToFile(tokenFileName, tokenResponse.body);
-                      Navigator.pop(context);
-                      _completer.complete(tokenResponse.body);
-                    } 
+                      Logger().d('Status Code, 200, OK detected! Response text : ${tokenResponse.body}');
+                      Map<String, dynamic> parsedResponse = jsonDecode(tokenResponse.body);
+                      
+                      if(parsedResponse['access_token'] != null || parsedResponse['instance_url'] != null){
+                        await SecureFileManager.setAccessToken(parsedResponse['access_token']);
+                        await SecureFileManager.setInstanceURL(parsedResponse['instance_url']);
+                      }
+                      else{
+                        throw FinPlanException('Failed to get Access Token : ${tokenResponse.body}');
+                      }
+                      _completer.complete(jsonEncode(parsedResponse)); // Complete the completer with the parsed response
+                    
+                    }
                     else {
+                      // throw FinPlanException('Failed to get Access Token : ${tokenResponse.body}');
                       _completer.completeError('Failed to get access token : ${tokenResponse.body}');
                     }
                   }
@@ -80,17 +89,14 @@ class SalesforceAuthService {
     ).then((_) => _completer.future);
   }
 
-  
-
-
+  // The method for logout from the app
   static Future<void> logout() async {
-    String? accessToken = await FileManagerUtil.getFromFile(tokenFileName, key : 'access_token');
-    Logger().d('access_token in logout is => $accessToken');
-    Logger().d('before logout file is => ${await FileManagerUtil.getFromFile(tokenFileName, key : 'access_token')}');
-    
-    await revokeAccessToken(accessToken);
-
-    Logger().d('after logout file is => ${FileManagerUtil.getFromFile(tokenFileName, key : 'access_token')}');
+    String? accessToken = await SecureFileManager.getAccessToken();
+    Logger().d('access_token before logout is => $accessToken');
+    if(accessToken != null && !accessToken.toUpperCase().startsWith('ERROR')) {
+      await revokeAccessToken(accessToken);
+    }
+    Logger().d('access_token after logout is => ${await SecureFileManager.getAccessToken()}');
   }
 
   static dynamic revokeAccessToken(String? accessToken) async{
@@ -104,14 +110,16 @@ class SalesforceAuthService {
       },
     );
     
-    // Handle the normal 200 status code 
+    // Handle the Status 200 (Status: OK)
+    // Logout successful, ensure to remove the access token
     if (response.statusCode == 200) {
-      // Logout successful, ensure to remove the access token from the token file
-      await FileManagerUtil.deleteKeyFromFile(tokenFileName, key : 'access_token');  
+      await SecureFileManager.clearAccessToken();
     }
     
-    // If its redirection, status 302, handle redirection
+    // Handle the status 302, (STATUS: Redirection)
     else if (response.statusCode == 302) {
+
+      Logger().d('Redirection Happened during logout from the app!');
       
       final String? redirectedUrl = response.headers['location'];
       Logger().d('redirectedUrl=>${response.headers['location']}');
@@ -120,8 +128,10 @@ class SalesforceAuthService {
         
         final redirectedResponse = await http.get(Uri.parse(redirectedUrl));
         Logger().d('After redirection status code: ${redirectedResponse.statusCode}');
+                
+        // await FileManager.deleteKeyFromFile(tokenFileName, key : 'access_token');  
+        await SecureFileManager.clearAccessToken(); // Logout successful, ensure to remove the access token from the token file
         
-        await FileManagerUtil.deleteKeyFromFile(tokenFileName, key : 'access_token');  // Logout successful, ensure to remove the access token from the token file
       } 
       else {
         Logger().e('Error : StatusCode 302 : RedirectionUrl is empty!');
@@ -134,28 +144,32 @@ class SalesforceAuthService {
     }
   }
 
-  static Future<String?> checkIfAlreadyLoggedIn() async {
-    // Get the existing token
-    String? existingToken = await FileManagerUtil.getFromFile(tokenFileName, key: 'access_token'); 
+  // static Future<bool> checkIfAlreadyLoggedIn() async {
+  //   // Get the existing token
+  //   String? existingToken = await SecureFileManager.getAccessToken();
+  //   return existingToken == null;
+  // }
 
-    // do a query callout
-    if(existingToken != '' && existingToken != null){
-      Map<String, dynamic> response = await SalesforceUtil
-                                        .queryFromSalesforce(
-                                          objAPIName: 'FinPlan__SMS_Message__c', 
-                                          fieldList: ['Id'], 
-                                          count : 1
-                                        );
-      dynamic error = response['error'];
+  // static Future<String?> anothermethod(){
+  //   // do a query callout check if u
+  //   if(existingToken != '' && existingToken != null){
+  //     Map<String, dynamic> response = await SalesforceUtil
+  //                                       .queryFromSalesforce(
+  //                                         objAPIName: 'FinPlan__SMS_Message__c', 
+  //                                         fieldList: ['Id'], 
+  //                                         count : 1
+  //                                       );
+  //     dynamic error = response['error'];
 
-      if(error != null && error.isNotEmpty && error.toString().contains('expired')){
-        FileManagerUtil.deleteKeyFromFile(tokenFileName, key : 'access_token');
-        existingToken = '';
-      }
-    }
-    return existingToken;
-  }
-
+  //     if(error != null && error.isNotEmpty && error.toString().contains('expired')){
+  //       SecureFileManager.clearAccessToken();
+  //       SecureFileManager.clearInstanceURL();
+  //       existingToken = '';
+  //     }
+  //   }
+  //   return existingToken;
+  // }
+  
   // Class ends
 }
 

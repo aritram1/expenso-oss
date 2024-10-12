@@ -3,6 +3,7 @@
 import 'dart:convert';
 
 import 'package:expenso_app/screens/message/finplan__util.dart';
+import 'package:expenso_app/util/finplan__constants.dart';
 import 'package:expenso_app/util/finplan__exception.dart';
 import 'package:expenso_app/widgets/finplan__datepicker_panel.dart';
 import 'package:expenso_app/widgets/finplan__pill.dart';
@@ -428,6 +429,7 @@ class FinPlanAllMessagesState extends State<FinPlanAllMessages> {
 
     for(Map<String, dynamic> each in allData){
       Logger().d('each[beneficiaryType] is ${each['beneficiaryType']}');
+      
 
       // switch (pillName) {
       //   case 'All':
@@ -540,7 +542,7 @@ Future<dynamic> showConfirmationBox(BuildContext context, String opType) {
   String title = 'Please confirm';
   String choiceYes = 'Yes';
   String choiceNo = 'No';
-  String content = (opType == 'Sync')
+  String content = (opType == FinPlanConstant.SYNC)
       ? 'This will delete existing messages and recreate them. Proceed?'
       : 'This will delete all messages and transactions. Proceed?';
 
