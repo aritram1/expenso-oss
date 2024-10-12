@@ -1,12 +1,7 @@
-// ignore_for_file: prefer_const_constructors, use_build_context_synchronously
-
 import 'package:expenso_app/screens/app_home/finplan__app_home_page.dart';
-// import 'package:expenso_app/screens/calendar/finplan__calendar_view.dart';
 import 'package:expenso_app/screens/login_page/finplan__login_view.dart';
-import 'package:expenso_app/util/finplan__salesforce_util_oauth2.dart';
 import 'package:expenso_app/util/finplan__secure_filemanager.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:logger/logger.dart';
 
 class FinPlanSplashPage extends StatefulWidget {
@@ -20,15 +15,13 @@ class FinPlanSplashPage extends StatefulWidget {
 
 class _FinPlanSplashPageState extends State<FinPlanSplashPage> {
   
-  // String tokenFileName = dotenv.env['tokenFileName'] ?? '';
-
   @override
   void initState() {
     super.initState();
     // No Custom Initialization logic yet
   }
 
-  getToken (){
+  getToken(){
     return SecureFileManager.getAccessToken();
   }
 
@@ -38,7 +31,7 @@ class _FinPlanSplashPageState extends State<FinPlanSplashPage> {
       future: getToken(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         } 
         else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
@@ -49,12 +42,12 @@ class _FinPlanSplashPageState extends State<FinPlanSplashPage> {
             
             // Navigator.of(context).pop();
 
-            return Scaffold(
+            return const Scaffold(
               body: FinPlanAppHomePage(title: 'Expenso')
             );
           } else {
-            return Scaffold(
-              body: FinPlanLoginPage(title: 'Expenso')
+            return const Scaffold(
+              body: FinPlanLoginPage()
             );
           }
         }

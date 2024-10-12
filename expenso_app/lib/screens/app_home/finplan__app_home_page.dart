@@ -61,43 +61,17 @@ class _FinPlanAppHomePageState extends State<FinPlanAppHomePage> {
   @override
   void initState() {
     super.initState();
-
-    row1Height = 80;
-    // row1Width = 80;
-
+    row1Height = 80;    // row1Width = 80;
     row2Height = 80;
-
-    row3Height = 80;
-    // row3Width = 80;
-
-    row4Height = 320;
-    // row4Width = 240;
-
-    row5Height = 120;
-    // row5Width = 120;
-
+    row3Height = 80;    // row3Width = 80;
+    row4Height = 320;   // row4Width = 240;
+    row5Height = 120;   // row5Width = 120;
     padding = 4;
-
-    // data = getDataForLast1Year();
-
-    // testing
-    // getTokenFilecontent();
   }
-
-  // testing
-  // getTokenFilecontent() async{
-  //   Logger().d('Inside getTokenFilecontent methodToken is getting saved as');
-  //   String tokenFileName = dotenv.env['tokenFileName'] ?? '';
-  //   String? content = await SalesforceAuthService.getFromFile(tokenFileName);
-  //   Logger().d('File content before the Home Page is loaded : $content');
-  //   accessToken = await SalesforceAuthService.getFromFile(tokenFileName, key : 'access_token');
-  //   isLoggedIn = accessToken != null;
-  // }
-
-  
+   
   @override
   Widget build(BuildContext context) {
-    BuildContext currentContext = context;
+
     return 
       Scaffold(
           appBar: PreferredSize(
@@ -118,31 +92,14 @@ class _FinPlanAppHomePageState extends State<FinPlanAppHomePage> {
                   },
                   Icons.logout : ({input = ''}) async{
                     try{
+                      // logout from the app and on success show login page without login button
                       await SalesforceAuthService.logout();
+                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => FinPlanLoginPage(message: 'You have logged out successfully! You may close the app!', showLoginButton: false,)
+                      ));
                     }
                     catch(error){
                       log.e('Error while doing logout : $error');
                     }
-                    Navigator.of(context).pop();
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => FinPlanLoginPage(title: 'Expenso')));
-                    
-                    // Navigator.push(context, MaterialPageRoute(
-                    //   builder: (_)=>
-                    //     Scaffold(
-                    //       appBar: AppBar(),
-                    //       body: Center(
-                    //         child: SizedBox(
-                    //           height: 200,
-                    //           width: 200,
-                    //           child: AppBar(
-                    //             // sms: jsonEncode(each),
-                    //             // onCallBack: (){}
-                    //           ),
-                    //         ),
-                    //       )
-                    //     )
-                    //   )
-                    // );
                     return true;
                   }
                 },
